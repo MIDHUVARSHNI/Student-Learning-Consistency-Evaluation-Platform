@@ -1,0 +1,64 @@
+{
+  "users": [
+    {
+      "id": 1770702193439,
+      "email": "midhuvarshnis@gmail.com",
+      "name": "Midhuvarshni",
+      "password": "blabla",
+      "role": "student"
+    },
+    {
+      "id": 1770702739021,
+      "email": "rhidhan@gmail.com",
+      "name": "Rhidhanya",
+      "password": "12345",
+      "role": "student"
+    }
+  ],
+  "learners": [
+    {
+      "id": 1770702249948,
+      "userId": 1,
+      "enrollment": "2024-blue",
+      "createdAt": "2026-02-10T05:44:09.948Z"
+    },
+    {
+      "id": 1770702771735,
+      "userId": 2,
+      "enrollment": "2024-black",
+      "createdAt": "2026-02-10T05:52:51.735Z"
+    }
+  ],
+  "evaluations": [
+    {
+      "id": 1770702283196,
+      "learnerId": 1770702249948,
+      "attendance": 85,
+      "performance": 78,
+      "participation": 60,
+      "assignments": 95,
+      "overallScore": 79.5,
+      "createdAt": "2026-02-10T05:44:43.196Z"
+    },
+    {
+      "id": 1770702612222,
+      "learnerId": 1770702249948,
+      "attendance": 85,
+      "performance": 78,
+      "participation": 60,
+      "assignments": 95,
+      "overallScore": 79.5,
+      "createdAt": "2026-02-10T05:50:12.222Z"
+    },
+    {
+      "id": 1770702805746,
+      "learnerId": 1770702771735,
+      "attendance": 89,
+      "performance": 99,
+      "participation": 80,
+      "assignments": 100,
+      "overallScore": 92,
+      "createdAt": "2026-02-10T05:53:25.746Z"
+    }
+  ]
+}
