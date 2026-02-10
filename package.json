@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "student-learning-platform-client",
   "version": "0.1.0",
   "type": "module",
@@ -24,5 +25,15 @@
     "tailwindcss": "^3.3.0",
     "postcss": "^8.4.24",
     "autoprefixer": "^10.4.14"
+=======
+  "name": "student-learning-platform-server",
+  "version": "0.1.0",
+  "scripts": {
+    "start": "node simple-server.js"
+  },
+  "dependencies": {
+    "cors": "2.8.6",
+    "express": "4.22.1"
+>>>>>>> 0275a9d4321aa5c2ff858aa0b49a1608010cd32e
   }
 }
