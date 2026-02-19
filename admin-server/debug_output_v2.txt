@@ -1,0 +1,17 @@
+Connected to DB
+--- USERS ---
+STUDENT: priya (698d6beec1e7b5f5c6c1c2bb)
+EDUCATOR: Rhidhanya (698d7441c1e7b5f5c6c1c344)
+ADMIN: Admin User (698df4acf719c2fcd4ebf243)
+EDUCATOR: ladoo (698df84edb215fa116409ea0)
+STUDENT: Dharani (698dfe16efa98e56be50ba2a)
+
+--- ACTIVITIES ---
+Activity: english for Student: 698d6beec1e7b5f5c6c1c2bb
+Activity: cs for Student: 698d6beec1e7b5f5c6c1c2bb
+Activity: science for Student: 698d6beec1e7b5f5c6c1c2bb
+Activity: Python online course for Student: 698dfe16efa98e56be50ba2a
+
+--- SIMULATING MESSAGE ---
+Attempting to send message from Admin User to Rhidhanya...
+Message created successfully: new ObjectId('698eb63365d01cd0e75dcced')

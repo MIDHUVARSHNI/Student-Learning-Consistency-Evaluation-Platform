@@ -1,0 +1,23 @@
+{
+    "name": "slcep",
+    "version": "1.0.0",
+    "description": "Student Learning Consistency Evaluation Platform",
+    "main": "server/index.js",
+    "scripts": {
+        "start": "node server/index.js",
+        "server": "npx nodemon server/index.js",
+        "client": "npm run dev --prefix client",
+        "dev": "concurrently \"npm run server\" \"npm run client\"",
+        "build": "npm install && npm install --prefix client && npm run build --prefix client",
+        "heroku-postbuild": "npm install --prefix client && npm run build --prefix client"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "concurrently": "^8.2.2"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.9"
+    }
+}
