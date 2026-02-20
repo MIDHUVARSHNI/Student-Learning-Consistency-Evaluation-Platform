@@ -110,6 +110,9 @@ const updateUser = async (req, res) => {
             user.name = req.body.name || user.name;
             user.email = req.body.email || user.email;
             user.role = req.body.role || user.role;
+            if (req.body.department !== undefined) {
+                user.department = req.body.department;
+            }
             if (req.body.password) {
                 user.password = req.body.password;
             }

@@ -11,7 +11,7 @@ function App() {
 
   return (
     <Router>
-      <div className="container mx-auto">
+      <>
         <Toaster position="top-right" />
         <Routes>
           <Route path="/" element={
@@ -28,7 +28,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>
-      </div>
+      </>
     </Router>
   );
 }

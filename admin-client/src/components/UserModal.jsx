@@ -1,6 +1,17 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
+const DEPARTMENTS = [
+    { code: 'CSE', name: 'Computer Science & Engineering' },
+    { code: 'ECE', name: 'Electronics & Communication Engineering' },
+    { code: 'MECH', name: 'Mechanical Engineering' },
+    { code: 'CIVIL', name: 'Civil Engineering' },
+    { code: 'EEE', name: 'Electrical & Electronics Engineering' },
+    { code: 'IT', name: 'Information Technology' },
+    { code: 'AIDS', name: 'AI & Data Science' },
+    { code: 'BT', name: 'Biotechnology' },
+];
+
 const UserModal = ({ isOpen, onClose, onSubmit, user, role }) => {
     const [formData, setFormData] = useState({
         name: '',
@@ -8,6 +19,7 @@ const UserModal = ({ isOpen, onClose, onSubmit, user, role }) => {
         password: '',
         role: role,
         weeklyGoal: 10,
+        department: '',
     });
 
     useEffect(() => {
@@ -18,6 +30,7 @@ const UserModal = ({ isOpen, onClose, onSubmit, user, role }) => {
                 password: '', // Don't show password
                 role: user.role,
                 weeklyGoal: user.weeklyGoal || 10,
+                department: user.department || '',
             });
         } else {
             setFormData({
@@ -26,6 +39,7 @@ const UserModal = ({ isOpen, onClose, onSubmit, user, role }) => {
                 password: '',
                 role: role,
                 weeklyGoal: 10,
+                department: '',
             });
         }
     }, [user, role, isOpen]);
@@ -46,7 +60,7 @@ const UserModal = ({ isOpen, onClose, onSubmit, user, role }) => {
             <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
                 <div className="flex justify-between items-center p-6 border-b">
                     <h3 className="text-xl font-semibold text-gray-800">
-                        {user ? 'Edit User' : 'Add New User'}
+                        {user ? 'Edit User' : `Add New ${role === 'educator' ? 'Educator' : 'Student'}`}
                     </h3>
                     <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
                         <X size={24} />
@@ -87,6 +101,23 @@ const UserModal = ({ isOpen, onClose, onSubmit, user, role }) => {
                             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             {...(!user && { required: true })}
                         />
+                    </div>
+
+                    {/* Department dropdown — shown for both student and educator */}
+                    <div>
+                        <label className="block text-gray-700 mb-1">Department</label>
+                        <select
+                            name="department"
+                            value={formData.department}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                            required
+                        >
+                            <option value="">— Select Department —</option>
+                            {DEPARTMENTS.map(d => (
+                                <option key={d.code} value={d.code}>{d.code} — {d.name}</option>
+                            ))}
+                        </select>
                     </div>
 
                     {role === 'student' && (

@@ -168,29 +168,34 @@ const MessageListModal = ({ onClose, targetUser }) => {
                                 return (
                                     <div
                                         key={msg._id}
-                                        className={`flex flex-col max-w-[85%] ${isOwnMessage ? 'self-end' : 'self-start'}`}
+                                        style={{
+                                            display: 'flex',
+                                            width: '100%',
+                                            justifyContent: isOwnMessage ? 'flex-end' : 'flex-start',
+                                            marginBottom: '2px',
+                                        }}
                                     >
                                         <div
-                                            className={`p-2.5 px-4 rounded-xl shadow-sm relative ${isOwnMessage
-                                                ? 'bg-[#dcf8c6] text-gray-800 rounded-tr-none'
-                                                : 'bg-white text-gray-800 rounded-tl-none border border-gray-100'
-                                                }`}
+                                            style={{
+                                                maxWidth: '75%',
+                                                position: 'relative',
+                                                padding: '8px 14px',
+                                                borderRadius: isOwnMessage ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                                                background: isOwnMessage ? '#dcf8c6' : '#ffffff',
+                                                boxShadow: '0 1px 2px rgba(0,0,0,0.12)',
+                                                color: '#1a1a1a',
+                                            }}
                                         >
-                                            <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                                            <div className="flex items-center gap-1 mt-1 justify-end text-[10px] text-gray-400 select-none">
-                                                <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                            <p style={{ fontSize: '15px', lineHeight: '1.5', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{msg.content}</p>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px', justifyContent: 'flex-end' }}>
+                                                <span style={{ fontSize: '11px', color: '#888' }}>
+                                                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
                                                 {isOwnMessage && (
-                                                    msg.isRead ? <CheckCheck className="w-3.5 h-3.5 text-blue-500" /> : <Check className="w-3.5 h-3.5" />
+                                                    msg.isRead
+                                                        ? <CheckCheck style={{ width: 14, height: 14, color: '#4fc3f7' }} />
+                                                        : <Check style={{ width: 14, height: 14, color: '#aaa' }} />
                                                 )}
-                                            </div>
-                                            {/* Tail */}
-                                            <div className={`absolute top-0 ${isOwnMessage ? '-right-2' : '-left-2'}`}>
-                                                <svg width="10" height="15" viewBox="0 0 10 15">
-                                                    <path
-                                                        d={isOwnMessage ? "M0 0 L10 0 L0 15 Z" : "M10 0 L0 0 L10 15 Z"}
-                                                        fill={isOwnMessage ? "#dcf8c6" : "white"}
-                                                    />
-                                                </svg>
                                             </div>
                                         </div>
                                     </div>
