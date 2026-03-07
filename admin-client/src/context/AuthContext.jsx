@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const { data } = await axios.post('http://localhost:5001/api/admin/login', {
+            const { data } = await axios.post('http://127.0.0.1:5001/api/admin/login', {
                 email,
                 password,
             });

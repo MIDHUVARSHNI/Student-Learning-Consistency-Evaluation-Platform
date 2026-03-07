@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosConfig';
 
 const initialState = {
     activities: [],
@@ -14,13 +14,7 @@ export const createActivity = createAsyncThunk(
     'activities/create',
     async (activityData, thunkAPI) => {
         try {
-            const token = thunkAPI.getState().auth.user.token;
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.post('http://localhost:5000/api/activities', activityData, config);
+            const response = await axiosInstance.post('/activities', activityData);
             return response.data;
         } catch (error) {
             const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
@@ -34,13 +28,7 @@ export const getActivities = createAsyncThunk(
     'activities/getAll',
     async (_, thunkAPI) => {
         try {
-            const token = thunkAPI.getState().auth.user.token;
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.get('http://localhost:5000/api/activities', config);
+            const response = await axiosInstance.get('/activities');
             return response.data;
         } catch (error) {
             const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
@@ -54,13 +42,7 @@ export const deleteActivity = createAsyncThunk(
     'activities/delete',
     async (id, thunkAPI) => {
         try {
-            const token = thunkAPI.getState().auth.user.token;
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            await axios.delete(`http://localhost:5000/api/activities/${id}`, config);
+            await axiosInstance.delete(`/activities/${id}`);
             return id;
         } catch (error) {
             const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();

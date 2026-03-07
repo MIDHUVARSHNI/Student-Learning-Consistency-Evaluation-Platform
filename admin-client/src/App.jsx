@@ -4,11 +4,13 @@ import Dashboard from './pages/Dashboard'
 import Students from './pages/Students'
 import Educators from './pages/Educators'
 import PrivateRoute from './components/PrivateRoute'
+import { Toaster } from 'react-hot-toast'
 import ErrorBoundary from './components/ErrorBoundary'
 
 function App() {
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 font-sans">
+      <Toaster position="top-right" />
       <ErrorBoundary>
         <Routes>
           <Route path="/login" element={<Login />} />

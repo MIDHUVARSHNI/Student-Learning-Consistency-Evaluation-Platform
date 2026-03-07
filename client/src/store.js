@@ -4,6 +4,7 @@ import activityReducer from './slices/activitySlice';
 import analyticsReducer from './slices/analyticsSlice';
 import educatorReducer from './slices/educatorSlice';
 import feedbackReducer from './slices/feedbackSlice';
+import assignmentReducer from './slices/assignmentSlice';
 
 export const store = configureStore({
     reducer: {
@@ -12,5 +13,6 @@ export const store = configureStore({
         analytics: analyticsReducer,
         educator: educatorReducer,
         feedback: feedbackReducer,
+        assignments: assignmentReducer,
     },
 });

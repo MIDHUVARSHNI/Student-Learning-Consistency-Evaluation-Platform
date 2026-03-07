@@ -39,6 +39,18 @@ const userSchema = new mongoose.Schema({
     isOnline: {
         type: Boolean,
         default: false
+    },
+    department: {
+        type: String,
+        default: ''
+    },
+    year: {
+        type: String,
+        default: ''
+    },
+    rollNo: {
+        type: String,
+        default: ''
     }
 });
 

@@ -5,37 +5,20 @@ const AnalyticsCard = ({ data }) => {
     const { totalHours, consistencyScore, totalActivities } = data;
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-white p-6 rounded-lg shadow-md flex items-center">
-                <div className="p-3 bg-blue-100 rounded-full mr-4">
-                    <Clock className="h-6 w-6 text-blue-500" />
+        <>
+            {[
+                { label: 'STUDENT CONSISTENCY', value: `${totalHours} hrs`, sub: 'Total Study Hours', color: 'text-green-600' },
+                { label: 'CONSISTENCY SCORE', value: `${consistencyScore}%`, sub: 'Overall Score', color: 'text-blue-600' },
+                { label: 'TOTAL ACTIVITIES', value: totalActivities, sub: 'Logged Sessions', color: 'text-purple-600' },
+            ].map((item, idx) => (
+                <div key={idx} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col relative min-h-[145px] w-full">
+                    <p className="text-[#6b7280] text-[11px] font-bold uppercase tracking-wider mb-2 text-left">{item.label}</p>
+                    <div className="flex-1 flex flex-col justify-center items-center">
+                        <h3 className="text-[38px] leading-none font-extrabold text-[#111827] text-center">{item.value}</h3>
+                    </div>
                 </div>
-                <div>
-                    <p className="text-gray-500 text-sm">Total Study Hours</p>
-                    <h3 className="text-2xl font-bold">{totalHours} hrs</h3>
-                </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-md flex items-center">
-                <div className="p-3 bg-green-100 rounded-full mr-4">
-                    <Trophy className="h-6 w-6 text-green-500" />
-                </div>
-                <div>
-                    <p className="text-gray-500 text-sm">Consistency Score</p>
-                    <h3 className="text-2xl font-bold">{consistencyScore}%</h3>
-                </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-md flex items-center">
-                <div className="p-3 bg-purple-100 rounded-full mr-4">
-                    <Activity className="h-6 w-6 text-purple-500" />
-                </div>
-                <div>
-                    <p className="text-gray-500 text-sm">Total Activities</p>
-                    <h3 className="text-2xl font-bold">{totalActivities}</h3>
-                </div>
-            </div>
-        </div>
+            ))}
+        </>
     );
 };
 

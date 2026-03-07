@@ -34,7 +34,7 @@ const StudentProgressModal = ({ student, onClose }) => {
                     return;
                 }
 
-                const response = await fetch(`http://localhost:5001/api/admin/students/${student._id}/analytics`, {
+                const response = await fetch(`http://127.0.0.1:5001/api/admin/students/${student._id}/analytics`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

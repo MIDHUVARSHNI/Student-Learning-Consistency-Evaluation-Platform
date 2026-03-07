@@ -6,6 +6,7 @@ const {
     getMe,
     updateUserProfile,
     heartbeat,
+    logoutUser,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -14,5 +15,6 @@ router.post('/login', loginUser);
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateUserProfile);
 router.post('/heartbeat', protect, heartbeat);
+router.post('/logout', protect, logoutUser);
 
 module.exports = router;

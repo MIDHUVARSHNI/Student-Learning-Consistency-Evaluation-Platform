@@ -41,7 +41,7 @@ const MiniCalendarWidget = ({ staffName = 'Staff', dept = 'CSE' }) => {
         const dayName = getDayName(d.getDay());
         if (!dayName) return 0;
         const slots = Object.values(schedule[dayName] || {});
-        return slots.filter(s => s && s.type === 'class').length;
+        return slots.filter(s => s && (s.type === 'theory' || s.type === 'lab')).length;
     };
 
     const today = now.getDate();
@@ -130,7 +130,9 @@ const MiniCalendarWidget = ({ staffName = 'Staff', dept = 'CSE' }) => {
                 {todaySlots.map(({ slot, entry }) => {
                     const isBreak = slot.isBreak;
                     const isFree = !entry || entry.type === 'free';
-                    const dc = entry?.dept ? (DEPT_COLORS[entry.dept] || DEPT_COLORS.DEFAULT) : null;
+                    const entryColor = entry?.type === 'lab'
+                        ? { bg: '#e8f5e9', border: '#2e7d32', text: '#1b5e20' }
+                        : { bg: '#e8f0fe', border: '#1565c0', text: '#0d47a1' };
                     return (
                         <div key={slot.id} style={{ display: 'flex', gap: 10, marginBottom: 8, alignItems: 'flex-start' }}>
                             <div style={{ minWidth: 100, fontSize: 10, color: '#999', textAlign: 'right', paddingTop: 6, flexShrink: 0 }}>
@@ -138,8 +140,8 @@ const MiniCalendarWidget = ({ staffName = 'Staff', dept = 'CSE' }) => {
                             </div>
                             <div style={{
                                 flex: 1, borderRadius: 9, padding: '8px 12px',
-                                background: isBreak ? '#fff3e0' : isFree ? '#f9f9f9' : dc?.bg,
-                                border: `1.5px ${isFree && !isBreak ? 'dashed #e0e0e0' : 'solid ' + (isBreak ? '#e65100' : (dc?.text || '#bbb'))}`
+                                background: isBreak ? '#fff3e0' : isFree ? '#f9f9f9' : entryColor.bg,
+                                border: `1.5px ${isFree && !isBreak ? 'dashed #e0e0e0' : 'solid ' + (isBreak ? '#e65100' : entryColor.border)}`
                             }}>
                                 {isBreak ? (
                                     <p style={{ fontSize: 12, fontWeight: 700, color: '#e65100' }}>🍽 Lunch Break</p>
@@ -147,8 +149,8 @@ const MiniCalendarWidget = ({ staffName = 'Staff', dept = 'CSE' }) => {
                                     <p style={{ fontSize: 12, color: '#ccc', fontWeight: 600 }}>Free Period</p>
                                 ) : (
                                     <>
-                                        <p style={{ fontSize: 13, fontWeight: 700, color: dc?.text, marginBottom: 2 }}>{entry.subject}</p>
-                                        <p style={{ fontSize: 11, color: '#666' }}>📚 {entry.year} &nbsp;•&nbsp; 🚪 {entry.room}</p>
+                                        <p style={{ fontSize: 13, fontWeight: 700, color: entryColor.text, marginBottom: 2 }}>{entry.subject}</p>
+                                        <p style={{ fontSize: 11, color: '#666' }}>{entry.faculty}&nbsp;•&nbsp;{entry.room}{entry.type === 'lab' ? ' · Lab' : ''}</p>
                                     </>
                                 )}
                             </div>

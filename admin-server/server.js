@@ -21,6 +21,17 @@ mongoose.connect(process.env.MONGO_URI)
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/admin/messages', require('./routes/messageRoutes'));
 
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./middleware/errorMiddleware');
+
+// 404 Handler
+app.all('*', (req, res, next) => {
+    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
+
+// Global Error Middleware
+app.use(globalErrorHandler);
+
 app.get('/', (req, res) => {
     res.send('Admin API is running...');
 });

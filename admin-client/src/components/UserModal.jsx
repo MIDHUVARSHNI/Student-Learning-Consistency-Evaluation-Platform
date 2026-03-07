@@ -12,6 +12,19 @@ const DEPARTMENTS = [
     { code: 'BT', name: 'Biotechnology' },
 ];
 
+const YEARS = [
+    { id: 'be1', label: '1st Year B.E.' },
+    { id: 'be2', label: '2nd Year B.E.' },
+    { id: 'be3', label: '3rd Year B.E.' },
+    { id: 'be4', label: '4th Year B.E.' },
+    { id: 'msc1', label: '1st Year M.Sc.' },
+    { id: 'msc2', label: '2nd Year M.Sc.' },
+    { id: 'mba1', label: '1st Year MBA' },
+    { id: 'mba2', label: '2nd Year MBA' },
+    { id: 'mtech1', label: '1st Year M.Tech' },
+    { id: 'mtech2', label: '2nd Year M.Tech' },
+];
+
 const UserModal = ({ isOpen, onClose, onSubmit, user, role }) => {
     const [formData, setFormData] = useState({
         name: '',
@@ -20,6 +33,9 @@ const UserModal = ({ isOpen, onClose, onSubmit, user, role }) => {
         role: role,
         weeklyGoal: 10,
         department: '',
+        year: '',
+        collegeId: '',
+        rollNo: '',
     });
 
     useEffect(() => {
@@ -31,6 +47,9 @@ const UserModal = ({ isOpen, onClose, onSubmit, user, role }) => {
                 role: user.role,
                 weeklyGoal: user.weeklyGoal || 10,
                 department: user.department || '',
+                year: user.year || '',
+                collegeId: user.collegeId || '',
+                rollNo: user.rollNo || '',
             });
         } else {
             setFormData({
@@ -40,6 +59,9 @@ const UserModal = ({ isOpen, onClose, onSubmit, user, role }) => {
                 role: role,
                 weeklyGoal: 10,
                 department: '',
+                year: '',
+                collegeId: '',
+                rollNo: '',
             });
         }
     }, [user, role, isOpen]);
@@ -119,6 +141,56 @@ const UserModal = ({ isOpen, onClose, onSubmit, user, role }) => {
                             ))}
                         </select>
                     </div>
+
+                    {/* Year dropdown — only for students */}
+                    {role === 'student' && (
+                        <div>
+                            <label className="block text-gray-700 mb-1">Academic Year</label>
+                            <select
+                                name="year"
+                                value={formData.year}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                                required
+                            >
+                                <option value="">— Select Year —</option>
+                                {YEARS.map(y => (
+                                    <option key={y.id} value={y.id}>{y.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
+                    {role === 'student' && (
+                        <div>
+                            <label className="block text-gray-700 mb-1">Roll Number</label>
+                            <input
+                                type="text"
+                                name="rollNo"
+                                value={formData.rollNo}
+                                onChange={handleChange}
+                                placeholder="e.g. CS1001"
+                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                        </div>
+                    )}
+
+                    {/* College ID — only for educators */}
+                    {role === 'educator' && (
+                        <div>
+                            <label className="block text-gray-700 mb-1">College ID</label>
+                            <input
+                                type="text"
+                                name="collegeId"
+                                value={formData.collegeId}
+                                onChange={handleChange}
+                                placeholder="e.g. EDU001"
+                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                required
+                            />
+                        </div>
+                    )}
 
                     {role === 'student' && (
                         <div>

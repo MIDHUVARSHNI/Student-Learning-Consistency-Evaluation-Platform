@@ -25,7 +25,7 @@ const EducatorProgressModal = ({ educator, onClose }) => {
     useEffect(() => {
         const fetchAnalytics = async () => {
             try {
-                const response = await fetch(`http://localhost:5001/api/admin/educators/${educator._id}/analytics`, {
+                const response = await fetch(`http://127.0.0.1:5001/api/admin/educators/${educator._id}/analytics`, {
                     headers: {
                         Authorization: `Bearer ${adminUser.token}`,
                     },
@@ -52,63 +52,78 @@ const EducatorProgressModal = ({ educator, onClose }) => {
                 {/* Header */}
                 <div className="bg-[#1a2b4a] p-6 flex justify-between items-center text-white">
                     <div className="flex items-center gap-4">
-                        <div className="bg-green-500/20 p-3 rounded-full">
-                            <FaChartLine size={28} className="text-green-300" />
+                        <div className="relative">
+                            <div className="bg-green-500/20 p-3 rounded-xl border border-green-500/30">
+                                <FaChartLine size={28} className="text-green-300" />
+                            </div>
+                            {analytics?.isActiveToday && (
+                                <span className="absolute -top-1 -right-1 bg-green-500 text-[9px] font-black px-1.5 py-0.5 rounded-full border-2 border-[#1a2b4a] animate-pulse">
+                                    ACTIVE
+                                </span>
+                            )}
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold">{educator.name}'s Activity</h2>
-                            <p className="text-green-200 text-sm">{educator.email}</p>
+                            <div className="flex items-center gap-3">
+                                <h2 className="text-2xl font-black tracking-tight">{educator.name}'s Activity</h2>
+                                {analytics?.isActiveToday && (
+                                    <span className="bg-green-500/20 text-green-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-green-500/30 uppercase tracking-widest">
+                                        Online Today
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-gray-400 text-sm font-medium">{educator.email}</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors bg-white/10 p-2 rounded-full hover:bg-white/20">
-                        <FaTimes size={24} />
+                    <button onClick={onClose} className="text-gray-400 hover:text-white transition-all bg-white/5 p-2.5 rounded-xl hover:bg-white/10 hover:rotate-90">
+                        <FaTimes size={20} />
                     </button>
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+                <div className="flex-1 overflow-y-auto p-6 bg-[#f8fafc]">
                     {loading ? (
-                        <div className="flex items-center justify-center h-full">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a2b4a]"></div>
+                        <div className="flex flex-col items-center justify-center h-full gap-4">
+                            <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-500 border-t-transparent shadow-lg"></div>
+                            <p className="text-blue-600 font-bold animate-pulse">Loading Analytics...</p>
                         </div>
                     ) : analytics ? (
                         <div className="space-y-6">
                             {/* Stats Cards */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
-                                    <div className="bg-green-100 p-3 rounded-lg text-green-600">
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 transition-all hover:shadow-md">
+                                    <div className="bg-blue-50 p-3.5 rounded-xl text-blue-600">
                                         <FaBullseye size={24} />
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-500">Activity Score</p>
-                                        <h3 className="text-2xl font-bold text-gray-800">{analytics.consistencyScore}%</h3>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Consistency</p>
+                                        <h3 className="text-2xl font-black text-gray-900">{analytics.consistencyScore}%</h3>
                                     </div>
                                 </div>
-                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
-                                    <div className="bg-blue-100 p-3 rounded-lg text-blue-600">
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 transition-all hover:shadow-md">
+                                    <div className="bg-amber-50 p-3.5 rounded-xl text-amber-600">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Student Rating</p>
+                                        <h3 className="text-2xl font-black text-gray-900">{analytics.avgRating || '—'}</h3>
+                                    </div>
+                                </div>
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 transition-all hover:shadow-md">
+                                    <div className="bg-indigo-50 p-3.5 rounded-xl text-indigo-600">
                                         <FaCommentDots size={24} />
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-500">Feedback Given</p>
-                                        <h3 className="text-2xl font-bold text-gray-800">{analytics.totalHours}</h3>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Ratings</p>
+                                        <h3 className="text-2xl font-black text-gray-900">{analytics.totalRatings}</h3>
                                     </div>
                                 </div>
-                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
-                                    <div className="bg-purple-100 p-3 rounded-lg text-purple-600">
-                                        <FaUserGraduate size={24} />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-gray-500">Students</p>
-                                        <h3 className="text-2xl font-bold text-gray-800">{analytics.subjectData?.find(s => s.name === 'Students Mentored')?.value || 0}</h3>
-                                    </div>
-                                </div>
-                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
-                                    <div className="bg-orange-100 p-3 rounded-lg text-orange-600">
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 transition-all hover:shadow-md">
+                                    <div className="bg-emerald-50 p-3.5 rounded-xl text-emerald-600">
                                         <FaCalendarAlt size={24} />
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-500">Weekly Activity</p>
-                                        <h3 className="text-2xl font-bold text-gray-800">{analytics.currentWeekHours}</h3>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Weekly Minutes</p>
+                                        <h3 className="text-2xl font-black text-gray-900">{analytics.currentWeekHours}</h3>
                                     </div>
                                 </div>
                             </div>
@@ -116,27 +131,33 @@ const EducatorProgressModal = ({ educator, onClose }) => {
                             {/* Charts */}
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 {/* Weekly Activity Chart */}
-                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Weekly Feedback Activity</h3>
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Dash Activity (Week)</h3>
+                                        <span className="text-[10px] bg-gray-100 px-2 py-1 rounded-lg text-gray-500 font-bold">MINUTES ACTIVE</span>
+                                    </div>
                                     <div className="h-64">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <BarChart data={analytics.weeklyData}>
-                                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                                                <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} />
-                                                <YAxis stroke="#9ca3af" fontSize={12} />
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                                <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} fontWeight={600} axisLine={false} tickLine={false} />
+                                                <YAxis stroke="#94a3b8" fontSize={11} fontWeight={600} axisLine={false} tickLine={false} />
                                                 <Tooltip
-                                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                                                    cursor={{ fill: '#f3f4f6' }}
+                                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '11px', fontWeight: 'bold' }}
+                                                    cursor={{ fill: '#f8fafc' }}
                                                 />
-                                                <Bar dataKey="minutes" fill="#10b981" radius={[4, 4, 0, 0]} barSize={40} />
+                                                <Bar dataKey="minutes" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={36} />
                                             </BarChart>
                                         </ResponsiveContainer>
                                     </div>
                                 </div>
 
                                 {/* Subject Distribution Chart */}
-                                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Activity Distribution</h3>
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Student Feedback Overview</h3>
+                                        <span className="text-[10px] bg-gray-100 px-2 py-1 rounded-lg text-gray-500 font-bold">RATING DISTRIBUTION</span>
+                                    </div>
                                     <div className="h-64">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <PieChart>
@@ -144,18 +165,20 @@ const EducatorProgressModal = ({ educator, onClose }) => {
                                                     data={analytics.subjectData}
                                                     cx="50%"
                                                     cy="50%"
-                                                    innerRadius={60}
-                                                    outerRadius={80}
+                                                    innerRadius={70}
+                                                    outerRadius={90}
                                                     fill="#8884d8"
-                                                    paddingAngle={5}
+                                                    paddingAngle={8}
                                                     dataKey="value"
                                                 >
                                                     {analytics.subjectData?.map((entry, index) => (
                                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                     ))}
                                                 </Pie>
-                                                <Tooltip />
-                                                <Legend verticalAlign="bottom" height={36} />
+                                                <Tooltip
+                                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontSize: '11px', fontWeight: 'bold' }}
+                                                />
+                                                <Legend iconType="circle" />
                                             </PieChart>
                                         </ResponsiveContainer>
                                     </div>

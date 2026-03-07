@@ -6,89 +6,38 @@ import EducatorProgressModal from '../components/EducatorProgressModal';
 import MessageModal from '../components/MessageModal';
 import { useAuth } from '../context/AuthContext';
 import { FaPlus, FaEdit, FaTrash, FaEnvelope, FaChartLine, FaSearch, FaThLarge, FaList } from 'react-icons/fa';
+import { DEPARTMENTS, SUBJECT_MAP } from '../constants/data';
 
 // Static dept info matched to API educators
-const DEPT_MAP = {
-    'CSE': 'Computer Science & Engineering',
-    'ECE': 'Electronics & Communication',
-    'MECH': 'Mechanical Engineering',
-    'CIVIL': 'Civil Engineering',
-    'EEE': 'Electrical & Electronics',
-    'IT': 'Information Technology',
-    'AIDS': 'AI & Data Science',
-    'BT': 'Biotechnology',
-};
-
-const SUBJECT_MAP = {
-    'CSE': ['Data Structures', 'Algorithms', 'OS', 'DBMS', 'AI/ML'],
-    'ECE': ['Digital Electronics', 'Signals & Systems', 'VLSI', 'Embedded Systems'],
-    'MECH': ['Thermodynamics', 'Fluid Mechanics', 'Manufacturing'],
-    'CIVIL': ['Structural Analysis', 'Surveying', 'Concrete Technology'],
-    'EEE': ['Power Systems', 'Control Systems', 'Power Electronics'],
-    'IT': ['Cloud Computing', 'Network Security', 'Mobile Apps'],
-    'AIDS': ['Machine Learning', 'Deep Learning', 'NLP'],
-    'BT': ['Molecular Biology', 'Genetic Engineering', 'Bioinformatics'],
-};
+const DEPT_MAP = DEPARTMENTS.reduce((acc, d) => ({ ...acc, [d.code]: d.name }), {});
 
 const DESIG = ['Professor', 'Associate Professor', 'Assistant Professor', 'Professor & HOD'];
 
-const MOCK_NAMES = [
-    'Dr. Meena Rajendran', 'Prof. Suresh Kumar', 'Dr. Latha Krishnan', 'Mr. Arun Pandian',
-    'Dr. Priya Venkat', 'Ms. Kavitha Nair', 'Dr. Ramesh Babu', 'Mr. Vijay Shankar',
-    'Dr. Nalini Devi', 'Prof. Karthik Raja', 'Dr. Anitha Kumari', 'Prof. Mohan Das',
-    'Dr. Saranya Iyer', 'Mr. Deepak Raj', 'Dr. Revathi Sundaram', 'Prof. Ganesh Murthy',
-    'Dr. Bhavani Shankar', 'Ms. Divya Lakshmi', 'Dr. Senthil Nathan', 'Prof. Varun Krishnan',
-    'Dr. Janani Priya', 'Mr. Hari Prasad', 'Dr. Sowmya Devi', 'Prof. Rajesh Kumar',
-    'Dr. Padma Priya', 'Mr. Karthikeyan S', 'Dr. Vimala Rani', 'Prof. Aravind Kumar',
-    'Dr. Lakshmi Narayanan', 'Ms. Swetha Reddy', 'Dr. Gopal Krishna', 'Prof. Nithya Kalyani',
-    'Dr. Sathish Kumar', 'Mr. Balaji S', 'Dr. Uma Maheswari', 'Prof. Venkatesh R',
-    'Dr. Gayathri Devi', 'Ms. Preethi Mohan', 'Dr. Mahesh Babu', 'Prof. Sangeetha K',
-    'Dr. Ravi Shankar', 'Mr. Ashwin Kumar', 'Dr. Indira Devi', 'Prof. Sundar Rajan',
-    'Dr. Kamala Devi', 'Ms. Nandini S', 'Dr. Srinivasan R', 'Prof. Lakshmi Priya',
-];
-
-// Enrich each educator from API with mock dept/subject/designation
+// Enrich each educator from API with dept/subject/designation display info
 function enrichEducator(edu, index) {
     const deptKeys = Object.keys(DEPT_MAP);
-    const dept = deptKeys[index % deptKeys.length];
+    const dept = edu.department || deptKeys[index % deptKeys.length];
+
+    // Only show Active if the educator has explicitly logged in (isOnline=true)
+    // AND was seen within the last 5 minutes
+    const isActuallyOnline =
+        edu.isOnline === true &&
+        edu.lastActive &&
+        (new Date() - new Date(edu.lastActive)) < 300000;
+
     return {
         ...edu,
         dept,
-        deptFull: DEPT_MAP[dept],
+        deptFull: DEPT_MAP[dept] || dept,
         subjects: SUBJECT_MAP[dept] || [],
         designation: DESIG[index % DESIG.length],
         experience: `${(index % 15) + 3} yrs`,
+        isOnline: isActuallyOnline,
     };
-}
-
-// Generate mock educators to fill up to TARGET_COUNT
-function generateMockEducators(apiEducators, targetCount = 50) {
-    const enrichedApi = apiEducators.map((e, i) => enrichEducator(e, i));
-    const mockCount = Math.max(0, targetCount - enrichedApi.length);
-    const deptKeys = Object.keys(DEPT_MAP);
-    const mocks = [];
-    for (let i = 0; i < mockCount; i++) {
-        const idx = enrichedApi.length + i;
-        const dept = deptKeys[idx % deptKeys.length];
-        mocks.push({
-            _id: `mock-edu-${i}`,
-            name: MOCK_NAMES[i % MOCK_NAMES.length],
-            email: `${MOCK_NAMES[i % MOCK_NAMES.length].toLowerCase().replace(/[^a-z]/g, '.').replace(/\.+/g, '.')}@college.edu`,
-            isOnline: Math.random() > 0.6,
-            dept,
-            deptFull: DEPT_MAP[dept],
-            subjects: SUBJECT_MAP[dept] || [],
-            designation: DESIG[idx % DESIG.length],
-            experience: `${(idx % 15) + 3} yrs`,
-            _isMock: true,
-        });
-    }
-    return [...enrichedApi, ...mocks];
 }
 
 const Educators = () => {
     const [educators, setEducators] = useState([]);
-    const [enriched, setEnriched] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
@@ -103,14 +52,13 @@ const Educators = () => {
 
     const fetchEducators = async () => {
         try {
-            const { data } = await axios.get('http://localhost:5001/api/admin/educators', {
+            const { data } = await axios.get('http://127.0.0.1:5001/api/admin/educators', {
                 headers: { Authorization: `Bearer ${user.token}` },
             });
-            setEducators(data);
-            setEnriched(generateMockEducators(data, 50));
-        } catch {
-            // If API is unreachable, still show mock educators
-            setEnriched(generateMockEducators([], 50));
+            setEducators(data.map((e, i) => enrichEducator(e, i)));
+        } catch (err) {
+            console.error('Error fetching educators:', err);
+            toast.error('Failed to load educators');
         } finally {
             setLoading(false);
         }
@@ -118,7 +66,7 @@ const Educators = () => {
 
     const fetchUnreadCounts = async () => {
         try {
-            const { data } = await axios.get('http://localhost:5001/api/admin/messages/unread-by-sender', {
+            const { data } = await axios.get('http://127.0.0.1:5001/api/admin/messages/unread-by-sender', {
                 headers: { Authorization: `Bearer ${user.token}` },
             });
             const map = {};
@@ -134,7 +82,7 @@ const Educators = () => {
     useEffect(() => {
         fetchEducators();
         fetchUnreadCounts();
-        const ei = setInterval(fetchEducators, 60000);
+        const ei = setInterval(fetchEducators, 30000);
         const ui = setInterval(fetchUnreadCounts, 10000);
         return () => { clearInterval(ei); clearInterval(ui); };
     }, []);
@@ -147,7 +95,7 @@ const Educators = () => {
     const handleDelete = async (id) => {
         if (!window.confirm('Delete this educator?')) return;
         try {
-            await axios.delete(`http://localhost:5001/api/admin/users/${id}`, { headers: { Authorization: `Bearer ${user.token}` } });
+            await axios.delete(`http://127.0.0.1:5001/api/admin/users/${id}`, { headers: { Authorization: `Bearer ${user.token}` } });
             toast.success('Educator deleted');
             fetchEducators();
         } catch { toast.error('Failed to delete'); }
@@ -157,10 +105,10 @@ const Educators = () => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
             if (currentUser) {
-                await axios.put(`http://localhost:5001/api/admin/users/${currentUser._id}`, formData, config);
+                await axios.put(`http://127.0.0.1:5001/api/admin/users/${currentUser._id}`, formData, config);
                 toast.success('Educator updated');
             } else {
-                await axios.post('http://localhost:5001/api/admin/users', formData, config);
+                await axios.post('http://127.0.0.1:5001/api/admin/users', formData, config);
                 toast.success('Educator created');
             }
             setIsModalOpen(false);
@@ -169,7 +117,7 @@ const Educators = () => {
     };
 
     const depts = ['All', ...Object.keys(DEPT_MAP)];
-    const filtered = enriched.filter(e =>
+    const filtered = educators.filter(e =>
         (filterDept === 'All' || e.dept === filterDept) &&
         (e.name?.toLowerCase().includes(search.toLowerCase()) || e.email?.toLowerCase().includes(search.toLowerCase()) || e.dept?.toLowerCase().includes(search.toLowerCase()))
     );
@@ -214,8 +162,8 @@ const Educators = () => {
                 /* ── CARD VIEW ── */
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 18 }}>
                     {filtered.map((edu, i) => (
-                        <div key={edu._id} style={{ background: '#fff', borderRadius: 14, padding: '20px 20px 16px', border: '1px solid #e8eaf6', boxShadow: '0 2px 10px rgba(21,101,192,.07)', display: 'flex', flexDirection: 'column', gap: 0 }}>
-                            {/* Top row */}
+                        <div key={edu._id} style={{ background: '#fff', borderRadius: 14, padding: '20px', border: '1px solid #e8eaf6', boxShadow: '0 2px 10px rgba(21,101,192,.07)', display: 'flex', flexDirection: 'column' }}>
+                            {/* Top info */}
                             <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 12 }}>
                                 <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg,#1565c0,#42a5f5)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 18, flexShrink: 0 }}>
                                     {edu.name?.charAt(0).toUpperCase() || 'E'}
@@ -223,36 +171,37 @@ const Educators = () => {
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <p style={{ fontWeight: 700, fontSize: 15, color: '#1a1a2e', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{edu.name}</p>
                                     <p style={{ fontSize: 12, color: '#888', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{edu.email}</p>
-                                    <p style={{ fontSize: 11.5, color: '#1565c0', fontWeight: 600 }}>{edu.designation} • {edu.dept} • {edu.experience}</p>
+                                    <p style={{ fontSize: 11.5, color: '#1565c0', fontWeight: 600 }}>{edu.dept} • {edu.designation}</p>
                                 </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
-                                    <span style={{ background: edu.isOnline ? '#e8f5e9' : '#f5f5f5', color: edu.isOnline ? '#2e7d32' : '#999', fontSize: 10, fontWeight: 700, borderRadius: 20, padding: '2px 9px', textAlign: 'center' }}>
-                                        {edu.isOnline ? 'Online' : 'Offline'}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
+                                    <span style={{
+                                        background: edu.isOnline ? '#e8f5e9' : '#fff1f0',
+                                        color: edu.isOnline ? '#2e7d32' : '#f5222d',
+                                        fontSize: 10,
+                                        fontWeight: 800,
+                                        borderRadius: 20,
+                                        padding: '3px 10px',
+                                        border: `1px solid ${edu.isOnline ? '#c8e6c9' : '#ffa39e'}`,
+                                        textTransform: 'uppercase'
+                                    }}>
+                                        {edu.isOnline ? 'Active' : 'Offline'}
                                     </span>
                                 </div>
                             </div>
 
-                            {/* Subjects */}
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
-                                {edu.subjects.map(s => (
-                                    <span key={s} style={{ background: '#e8f0fe', color: '#1565c0', fontSize: 11, fontWeight: 600, borderRadius: 6, padding: '3px 8px' }}>{s}</span>
-                                ))}
-                            </div>
-
                             {/* Actions */}
-                            <div style={{ display: 'flex', gap: 8, borderTop: '1px solid #f0f4ff', paddingTop: 12 }}>
-                                <button onClick={() => handleViewProgress(edu)} title="View Progress"
-                                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, background: '#e8f0fe', color: '#1565c0', border: 'none', borderRadius: 7, padding: '7px 0', cursor: 'pointer', fontWeight: 600, fontSize: 12 }}>
+                            <div style={{ display: 'flex', gap: 8, borderTop: '1px solid #f0f4ff', paddingTop: 12, marginTop: 'auto' }}>
+                                <button onClick={() => handleViewProgress(edu)} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, background: '#e8f0fe', color: '#1565c0', border: 'none', borderRadius: 7, padding: '7px 0', cursor: 'pointer', fontWeight: 600, fontSize: 12 }}>
                                     <FaChartLine /> Progress
                                 </button>
-                                <button onClick={() => handleMessage(edu)} title="Message" style={{ position: 'relative', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e8f5e9', color: '#2e7d32', border: 'none', borderRadius: 7, cursor: 'pointer' }}>
+                                <button onClick={() => handleMessage(edu)} style={{ position: 'relative', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e8f5e9', color: '#2e7d32', border: 'none', borderRadius: 7, cursor: 'pointer' }}>
                                     <FaEnvelope />
                                     {unreadCounts[edu._id] > 0 && <span style={{ position: 'absolute', top: -4, right: -4, background: '#e53935', color: '#fff', fontSize: 9, fontWeight: 700, width: 15, height: 15, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff' }}>{unreadCounts[edu._id]}</span>}
                                 </button>
-                                <button onClick={() => handleEdit(edu)} title="Edit" style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e3f2fd', color: '#1565c0', border: 'none', borderRadius: 7, cursor: 'pointer' }}>
+                                <button onClick={() => handleEdit(edu)} style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e3f2fd', color: '#1565c0', border: 'none', borderRadius: 7, cursor: 'pointer' }}>
                                     <FaEdit />
                                 </button>
-                                <button onClick={() => handleDelete(edu._id)} title="Delete" style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fdecea', color: '#d32f2f', border: 'none', borderRadius: 7, cursor: 'pointer' }}>
+                                <button onClick={() => handleDelete(edu._id)} style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fdecea', color: '#d32f2f', border: 'none', borderRadius: 7, cursor: 'pointer' }}>
                                     <FaTrash />
                                 </button>
                             </div>
@@ -265,7 +214,7 @@ const Educators = () => {
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
                             <tr style={{ background: '#f0f4ff' }}>
-                                {['Faculty', 'Email', 'Dept', 'Designation', 'Subjects', 'Status', 'Actions'].map(h => (
+                                {['Faculty', 'Email', 'Dept', 'Status', 'Actions'].map(h => (
                                     <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: '0.6px' }}>{h}</th>
                                 ))}
                             </tr>
@@ -281,16 +230,22 @@ const Educators = () => {
                                     </td>
                                     <td style={{ padding: '12px 16px', fontSize: 12, color: '#666' }}>{edu.email}</td>
                                     <td style={{ padding: '12px 16px' }}><span style={{ background: '#e8f0fe', color: '#1565c0', fontSize: 11, fontWeight: 700, borderRadius: 6, padding: '3px 9px' }}>{edu.dept}</span></td>
-                                    <td style={{ padding: '12px 16px', fontSize: 12, color: '#555' }}>{edu.designation}</td>
-                                    <td style={{ padding: '12px 16px', maxWidth: 180 }}>
-                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                                            {edu.subjects.slice(0, 2).map(s => <span key={s} style={{ background: '#f0f4ff', color: '#1565c0', fontSize: 10, fontWeight: 600, borderRadius: 5, padding: '2px 7px' }}>{s}</span>)}
-                                            {edu.subjects.length > 2 && <span style={{ fontSize: 10, color: '#888' }}>+{edu.subjects.length - 2} more</span>}
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '12px 16px' }}><span style={{ background: edu.isOnline ? '#e8f5e9' : '#f5f5f5', color: edu.isOnline ? '#2e7d32' : '#999', fontSize: 11, fontWeight: 700, borderRadius: 20, padding: '3px 10px' }}>{edu.isOnline ? 'Online' : 'Offline'}</span></td>
                                     <td style={{ padding: '12px 16px' }}>
-                                        <div style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
+                                        <span style={{
+                                            background: edu.isOnline ? '#e8f5e9' : '#fff1f0',
+                                            color: edu.isOnline ? '#2e7d32' : '#f5222d',
+                                            fontSize: 11,
+                                            fontWeight: 800,
+                                            borderRadius: 20,
+                                            padding: '4px 12px',
+                                            border: `1px solid ${edu.isOnline ? '#c8e6c9' : '#ffa39e'}`,
+                                            textTransform: 'uppercase'
+                                        }}>
+                                            {edu.isOnline ? 'Active' : 'Offline'}
+                                        </span>
+                                    </td>
+                                    <td style={{ padding: '12px 16px' }}>
+                                        <div style={{ display: 'flex', gap: 7 }}>
                                             <button onClick={() => handleViewProgress(edu)} style={{ background: '#e8f0fe', color: '#1565c0', border: 'none', borderRadius: 6, padding: 7, cursor: 'pointer' }} title="Progress"><FaChartLine /></button>
                                             <button onClick={() => handleMessage(edu)} style={{ position: 'relative', background: '#e8f5e9', color: '#2e7d32', border: 'none', borderRadius: 6, padding: 7, cursor: 'pointer' }} title="Message">
                                                 <FaEnvelope />

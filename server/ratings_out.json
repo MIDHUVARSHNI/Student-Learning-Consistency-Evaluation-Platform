@@ -1,0 +1,12 @@
+[
+  {
+    "_id": "69abc79facfaec80f89c293a",
+    "student": "69aa9ed22dc9fb720b8e9d1a",
+    "staff": "69aa9ed22dc9fb720b8e9e84",
+    "rating": 4,
+    "comment": "ok",
+    "createdAt": "2026-03-07T06:37:19.753Z",
+    "updatedAt": "2026-03-07T06:37:19.753Z",
+    "__v": 0
+  }
+]

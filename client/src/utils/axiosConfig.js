@@ -1,0 +1,49 @@
+import axios from 'axios';
+import toast from 'react-hot-toast';
+
+const API_BASE_URL = 'http://127.0.0.1:5000/api';
+
+const axiosInstance = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+// Request Interceptor
+axiosInstance.interceptors.request.use(
+    (config) => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user && user.token) {
+            config.headers.Authorization = `Bearer ${user.token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// Response Interceptor
+axiosInstance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        const message = (error.response && error.response.data && error.response.data.message) || error.message || 'Something went wrong';
+
+        // Global error handling
+        if (error.response && error.response.status === 401) {
+            // Unauthorized - could trigger logout here if needed
+            // localStorage.removeItem('user');
+            // window.location.href = '/login';
+        }
+
+        // Show toast for error
+        toast.error(message, {
+            id: message, // Prevent duplicate toasts for the same message
+        });
+
+        return Promise.reject(error);
+    }
+);
+
+export default axiosInstance;

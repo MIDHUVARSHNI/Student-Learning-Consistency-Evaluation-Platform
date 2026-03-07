@@ -1,55 +1,42 @@
 import React from 'react';
-import { LogOut, RotateCcw } from 'lucide-react';
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { hasError: false };
+        this.state = { hasError: false, error: null };
     }
 
     static getDerivedStateFromError(error) {
-        return { hasError: true };
+        return { hasError: true, error };
     }
 
     componentDidCatch(error, errorInfo) {
-        console.error('Error caught by boundary:', error, errorInfo);
+        console.error('ErrorBoundary caught an error', error, errorInfo);
     }
-
-    handleReset = () => {
-        window.location.href = '/';
-    };
-
-    handleLogout = () => {
-        localStorage.clear(); // Clear everything to be safe
-        window.location.href = '/login';
-    };
 
     render() {
         if (this.state.hasError) {
             return (
-                <div className="flex flex-col items-center justify-center min-h-screen bg-white p-4 text-center">
-                    <div className="bg-red-50 p-10 rounded-3xl border-2 border-red-100 max-w-lg shadow-xl">
-                        <div className="text-red-500 text-6xl mb-6">Oops!</div>
-                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Something went wrong</h2>
-                        <p className="text-gray-600 mb-8">
-                            A rendering error occurred. This could be due to a bug or a connection issue.
-                        </p>
-
-                        <div className="flex flex-col gap-4">
-                            <button
-                                onClick={this.handleReset}
-                                className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
-                            >
-                                <RotateCcw size={20} /> Try Refreshing
-                            </button>
-
-                            <button
-                                onClick={this.handleLogout}
-                                className="text-gray-500 font-semibold hover:text-red-500 transition-colors flex items-center justify-center gap-2"
-                            >
-                                <LogOut size={18} /> Forced Logout (Back to Login)
-                            </button>
+                <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+                    <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-red-100">
+                        <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <span className="text-4xl">⚠️</span>
                         </div>
+                        <h1 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h1>
+                        <p className="text-gray-600 mb-8">
+                            The application encountered an unexpected error. Don't worry, your data is safe.
+                        </p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
+                        >
+                            Refresh Application
+                        </button>
+                        {import.meta.env.DEV && (
+                            <div className="mt-8 p-4 bg-gray-100 rounded-lg text-left overflow-auto max-h-40">
+                                <p className="text-xs font-mono text-red-600">{this.state.error?.toString()}</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             );

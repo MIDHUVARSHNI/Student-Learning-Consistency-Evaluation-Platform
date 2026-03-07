@@ -44,13 +44,15 @@ const StudentProgressModal = ({ studentId, studentName, onClose }) => {
                 <div className="p-6 space-y-8">
                     {studentAnalytics ? (
                         <>
-                            <AnalyticsCard data={studentAnalytics} />
-                            <GoalProgress
-                                currentProgress={studentAnalytics.goalProgress}
-                                weeklyGoal={studentAnalytics.weeklyGoal}
-                                currentHours={studentAnalytics.currentWeekHours}
-                                remainingHours={studentAnalytics.remainingHours}
-                            />
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+                                <AnalyticsCard data={studentAnalytics} />
+                                <GoalProgress
+                                    currentProgress={studentAnalytics.goalProgress}
+                                    weeklyGoal={studentAnalytics.weeklyGoal}
+                                    currentHours={studentAnalytics.currentWeekHours}
+                                    remainingHours={studentAnalytics.remainingHours}
+                                />
+                            </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <StudyTrends data={studentAnalytics.weeklyData} />
                                 <SubjectDistribution data={studentAnalytics.subjectData} />

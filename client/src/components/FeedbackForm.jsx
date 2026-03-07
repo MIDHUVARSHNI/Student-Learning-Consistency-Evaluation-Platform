@@ -16,34 +16,33 @@ const FeedbackForm = ({ studentId, studentName, onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
-            <div className="relative p-5 border w-96 shadow-lg rounded-md bg-white">
-                <div className="mt-3 text-center">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900">Send Feedback to {studentName}</h3>
-                    <form onSubmit={onSubmit} className="mt-2 px-7 py-3">
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+            <div style={{ background: '#fff', borderRadius: 20, padding: '32px', maxWidth: 420, width: '100%', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1a1a2e', marginBottom: 8 }}>Send Feedback to {studentName}</h3>
+                    <form onSubmit={onSubmit} style={{ marginTop: 16 }}>
                         <textarea
-                            className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none"
-                            rows="4"
-                            placeholder="Enter feedback..."
+                            style={{ width: '100%', minHeight: 120, padding: '14px', borderRadius: 12, border: '1.5px solid #e0e7ff', fontSize: 14, outline: 'none', marginBottom: 20, fontFamily: 'inherit', resize: 'vertical' }}
+                            placeholder="Enter your feedback or review notes here..."
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             required
                         ></textarea>
-                        <div className="items-center px-4 py-3">
+                        <div style={{ display: 'flex', gap: 12 }}>
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1.5px solid #e0e7ff', background: '#fff', fontWeight: 700, color: '#666', cursor: 'pointer' }}
+                            >
+                                Cancel
+                            </button>
                             <button
                                 type="submit"
-                                className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 flex justify-center items-center"
+                                style={{ flex: 1, padding: '14px', borderRadius: 12, border: 'none', background: '#1565c0', color: '#fff', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 4px 12px rgba(21,101,192,0.3)' }}
                             >
-                                <Send className="mr-2 h-4 w-4" /> Send
+                                <Send size={18} /> Send
                             </button>
                         </div>
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="mt-2 px-4 py-2 bg-gray-300 text-gray-700 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-400 focus:outline-none"
-                        >
-                            Cancel
-                        </button>
                     </form>
                 </div>
             </div>

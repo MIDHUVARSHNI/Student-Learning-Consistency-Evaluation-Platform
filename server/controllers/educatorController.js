@@ -6,41 +6,55 @@ const mongoose = require('mongoose');
 // @route   GET /api/educator/students
 // @access  Private/Educator
 const getStudentStats = async (req, res) => {
+    const UserActivity = require('../models/UserActivity');
+    const Feedback = require('../models/Feedback');
     try {
         const students = await User.find({ role: 'student' }).select('-password');
 
         const studentStats = await Promise.all(students.map(async (student) => {
             const activities = await Activity.find({ student: student._id });
+            const userActivities = await UserActivity.find({
+                user: student._id,
+                date: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
+            });
 
-            // Calculate Consistency Score (Same logic as analyticsController)
+            // Calculate Checked Progress (Activities that have feedback)
+            // Assuming feedback is linked to student and we check total count vs activities
+            const feedbackCount = await Feedback.countDocuments({ student: student._id });
+            const totalActivities = activities.length;
+
+            // Calculate Consistency Score
             const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             const last7Days = [];
 
             for (let i = 6; i >= 0; i--) {
                 const d = new Date();
                 d.setDate(d.getDate() - i);
+                d.setHours(0, 0, 0, 0);
                 const dateString = d.toISOString().split('T')[0];
 
-                const dailyDuration = activities
-                    .filter(a => a.createdAt.toISOString().split('T')[0] === dateString)
+                const manualDuration = activities
+                    .filter(a => (a.date || a.createdAt).toISOString().split('T')[0] === dateString)
                     .reduce((acc, curr) => acc + curr.duration, 0);
 
-                last7Days.push({ minutes: dailyDuration });
+                const dashActivity = userActivities.find(ua => ua.date.toISOString().split('T')[0] === dateString);
+                const dashMinutes = dashActivity ? dashActivity.minutes : 0;
+
+                last7Days.push({ minutes: manualDuration + dashMinutes });
             }
 
             const activeDays = last7Days.filter(day => day.minutes > 0).length;
             const consistencyScore = Math.round((activeDays / 7) * 100);
-
-            // Get last active date
-            const lastActivity = activities.length > 0 ? activities[activities.length - 1].createdAt : null;
 
             return {
                 _id: student._id,
                 name: student.name,
                 email: student.email,
                 consistencyScore,
-                lastActive: lastActivity,
-                totalActivities: activities.length
+                lastActive: student.lastActive,
+                isOnline: student.isOnline,
+                totalActivities,
+                checkedProgress: feedbackCount, // Number of activities checked/provided feedback
             };
         }));
 
@@ -160,12 +174,13 @@ const getStudentAnalytics = async (req, res) => {
     }
 };
 
-// @desc    Get all educators (for students to pick)
+// @desc    Get all educators (for students and staff dashboards)
 // @route   GET /api/educator/list
 // @access  Private
 const getEducators = async (req, res) => {
     try {
-        const educators = await User.find({ role: 'educator' }).select('name email');
+        const educators = await User.find({ role: 'educator' })
+            .select('name email department collegeId isOnline lastActive');
         res.status(200).json(educators);
     } catch (error) {
         res.status(500).json({ message: error.message });

@@ -43,6 +43,14 @@ const userSchema = new mongoose.Schema({
     department: {
         type: String,
         default: ''
+    },
+    year: {
+        type: String,
+        default: ''
+    },
+    rollNo: {
+        type: String,
+        default: ''
     }
 });
 

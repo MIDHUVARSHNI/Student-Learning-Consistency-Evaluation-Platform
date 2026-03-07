@@ -1,0 +1,75 @@
+﻿[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 2440 modules transformed.
+node.exe : [31mΓ£ù[39m Build failed in 
+4.12s
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" 
+"C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: 
+    ([31mΓ£ù[39m Build failed in 4.12s:S  
+  tring) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommand 
+   Error
+ 
+[31merror during build:
+[31msrc/components/MiniCalendarWidget.jsx 
+(3:9): "generateSchedule" is not exported 
+by "src/components/TimetableView.jsx", 
+imported by "src/components/MiniCalendarWidg
+et.jsx".[31m
+file: [36mC:/Users/ADMIN/OneDrive/Desktop/S
+LCEP/client/src/components/MiniCalendarWidge
+t.jsx:3:9[31m
+[33m
+1: import React, { useState } from 'react';
+2: import { ChevronLeft, ChevronRight } 
+from 'lucide-react';
+3: import { generateSchedule, TIME_SLOTS, 
+DAYS } from './TimetableView';
+            ^
+4: 
+5: const MONTH_NAMES = ['January', 
+'February', 'March', 'April', 'May', 
+'June', 'July', 'August', 'September', 
+'October'...
+[31m
+    at getRollupError (file:///C:/Users/ADMI
+N/OneDrive/Desktop/SLCEP/client/node_modules
+/rollup/dist/es/shared/parseAst.js:402:41)
+    at error (file:///C:/Users/ADMIN/OneDriv
+e/Desktop/SLCEP/client/node_modules/rollup/d
+ist/es/shared/parseAst.js:398:42)
+    at Module.error (file:///C:/Users/ADMIN/
+OneDrive/Desktop/SLCEP/client/node_modules/r
+ollup/dist/es/shared/node-entry.js:17040:16)
+    at Module.traceVariable (file:///C:/User
+s/ADMIN/OneDrive/Desktop/SLCEP/client/node_m
+odules/rollup/dist/es/shared/node-entry.js:1
+7452:29)
+    at ModuleScope.findVariable (file:///C:/
+Users/ADMIN/OneDrive/Desktop/SLCEP/client/no
+de_modules/rollup/dist/es/shared/node-entry.
+js:15070:39)
+    at ReturnValueScope.findVariable (file:/
+//C:/Users/ADMIN/OneDrive/Desktop/SLCEP/clie
+nt/node_modules/rollup/dist/es/shared/node-e
+ntry.js:5673:38)
+    at FunctionBodyScope.findVariable (file:
+///C:/Users/ADMIN/OneDrive/Desktop/SLCEP/cli
+ent/node_modules/rollup/dist/es/shared/node-
+entry.js:5673:38)
+    at Identifier.bind (file:///C:/Users/ADM
+IN/OneDrive/Desktop/SLCEP/client/node_module
+s/rollup/dist/es/shared/node-entry.js:5447:4
+0)
+    at CallExpression.bind (file:///C:/Users
+/ADMIN/OneDrive/Desktop/SLCEP/client/node_mo
+dules/rollup/dist/es/shared/node-entry.js:28
+29:23)
+    at CallExpression.bind (file:///C:/Users
+/ADMIN/OneDrive/Desktop/SLCEP/client/node_mo
+dules/rollup/dist/es/shared/node-entry.js:12
+179:15)[39m

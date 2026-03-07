@@ -1,22 +1,22 @@
 const Activity = require('../models/Activity');
 const User = require('../models/User');
+const Feedback = require('../models/Feedback');
 
-// @desc    Get analytics data
-// @route   GET /api/analytics
-// @access  Private
 // @desc    Get analytics data
 // @route   GET /api/analytics
 // @access  Private
 const getAnalytics = async (req, res) => {
     try {
         const activities = await Activity.find({ student: req.user.id });
+        const completedActivities = activities.filter(a => a.status === 'completed');
+        const checkedProgress = await Feedback.countDocuments({ student: req.user.id });
 
         // Calculate Total Study Hours
-        const totalMinutes = activities.reduce((acc, curr) => acc + curr.duration, 0);
+        const totalMinutes = completedActivities.reduce((acc, curr) => acc + curr.duration, 0);
         const totalHours = (totalMinutes / 60).toFixed(1);
 
         // Calculate Subject Distribution
-        const subjectStats = activities.reduce((acc, curr) => {
+        const subjectStats = completedActivities.reduce((acc, curr) => {
             acc[curr.subject] = (acc[curr.subject] || 0) + curr.duration;
             return acc;
         }, {});
@@ -36,8 +36,8 @@ const getAnalytics = async (req, res) => {
             const dateString = d.toISOString().split('T')[0];
             const dayName = days[d.getDay()];
 
-            // Find total duration for this day
-            const dailyDuration = activities
+            // Find total duration for this day only for completed activities
+            const dailyDuration = completedActivities
                 .filter(a => a.createdAt.toISOString().split('T')[0] === dateString)
                 .reduce((acc, curr) => acc + curr.duration, 0);
 
@@ -52,7 +52,7 @@ const getAnalytics = async (req, res) => {
         const consistencyScore = Math.round((activeDays / 7) * 100);
 
         // Heatmap Data (Last 365 days)
-        const heatmapData = activities.reduce((acc, curr) => {
+        const heatmapData = completedActivities.reduce((acc, curr) => {
             const date = curr.createdAt.toISOString().split('T')[0];
             const existing = acc.find(item => item.date === date);
             if (existing) {
@@ -70,7 +70,7 @@ const getAnalytics = async (req, res) => {
         currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay()); // Sunday
         currentWeekStart.setHours(0, 0, 0, 0);
 
-        const currentWeekDuration = activities
+        const currentWeekDuration = completedActivities
             .filter(a => new Date(a.createdAt) >= currentWeekStart)
             .reduce((acc, curr) => acc + curr.duration, 0);
 
@@ -88,6 +88,7 @@ const getAnalytics = async (req, res) => {
             weeklyGoal,
             currentWeekHours,
             goalProgress,
+            checkedProgress,
             remainingHours: Math.max(0, (weeklyGoal - currentWeekHours).toFixed(1))
         });
 
@@ -96,6 +97,42 @@ const getAnalytics = async (req, res) => {
     }
 };
 
+const getStaffConsistency = async (req, res) => {
+    const UserActivity = require('../models/UserActivity');
+    try {
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const last7Days = [];
+
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            d.setHours(0, 0, 0, 0);
+            const dayName = days[d.getDay()];
+
+            const activity = await UserActivity.findOne({
+                user: req.user.id,
+                date: d
+            });
+
+            last7Days.push({
+                name: dayName,
+                minutes: activity ? activity.minutes : 0
+            });
+        }
+
+        const activeDays = last7Days.filter(day => day.minutes > 0).length;
+        const consistencyScore = Math.round((activeDays / 7) * 100);
+
+        res.status(200).json({
+            weeklyData: last7Days,
+            consistencyScore
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getAnalytics,
+    getStaffConsistency,
 };

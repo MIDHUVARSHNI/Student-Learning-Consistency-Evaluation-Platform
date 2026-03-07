@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosConfig';
 
 const initialState = {
     data: null,
@@ -14,13 +14,7 @@ export const getAnalyticsData = createAsyncThunk(
     'analytics/getData',
     async (_, thunkAPI) => {
         try {
-            const token = thunkAPI.getState().auth.user.token;
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            const response = await axios.get('http://localhost:5000/api/analytics', config);
+            const response = await axiosInstance.get('/analytics');
             return response.data;
         } catch (error) {
             const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
