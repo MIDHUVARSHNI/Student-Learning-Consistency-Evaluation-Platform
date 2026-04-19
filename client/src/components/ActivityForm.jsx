@@ -9,12 +9,13 @@ const ActivityForm = () => {
     const [formData, setFormData] = useState({
         subject: '',
         topic: '',
+        justification: '',
         duration: '',
         status: 'completed',
         notes: '',
     });
 
-    const { subject, topic, duration, status, notes } = formData;
+    const { subject, topic, justification, duration, status, notes } = formData;
 
     const onLogActivity = (e) => {
         e.preventDefault();
@@ -22,9 +23,9 @@ const ActivityForm = () => {
             toast.error('Please fill in subject and duration');
             return;
         }
-        dispatch(createActivity({ subject, topic, duration: Number(duration), status, notes }));
+        dispatch(createActivity({ subject, topic, justification, duration: Number(duration), status, notes }));
         toast.success('Activity logged successfully!');
-        setFormData({ subject: '', topic: '', duration: '', status: 'completed', notes: '' });
+        setFormData({ subject: '', topic: '', justification: '', duration: '', status: 'completed', notes: '' });
     };
 
     const onChange = (e) => {
@@ -82,6 +83,19 @@ const ActivityForm = () => {
                 </div>
             </div>
 
+            {/* Justification */}
+            <div style={{ marginBottom: 12 }}>
+                <label style={labelStyle}>Justification</label>
+                <input
+                    type="text"
+                    name="justification"
+                    value={justification}
+                    onChange={onChange}
+                    style={inputStyle}
+                    placeholder="e.g. Preparing for unit test on derivatives"
+                />
+            </div>
+
             {/* Duration + Status */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
                 <div>
@@ -105,8 +119,6 @@ const ActivityForm = () => {
                         style={{ ...inputStyle, cursor: 'pointer' }}
                     >
                         <option value="completed">Completed</option>
-                        <option value="in-progress">In Progress</option>
-                        <option value="skipped">Skipped</option>
                     </select>
                 </div>
             </div>

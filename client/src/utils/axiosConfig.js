@@ -10,9 +10,24 @@ const axiosInstance = axios.create({
     },
 });
 
+let store;
+export const injectStore = (_store) => {
+    store = _store;
+};
+
 // Request Interceptor
 axiosInstance.interceptors.request.use(
     (config) => {
+        // Prefer Redux state token if available (prevents cross-tab localstorage pollution)
+        if (store) {
+            const state = store.getState();
+            if (state.auth?.user?.token) {
+                config.headers.Authorization = `Bearer ${state.auth.user.token}`;
+                return config;
+            }
+        }
+
+        // Fallback to localStorage if store isn't injected yet
         const user = JSON.parse(localStorage.getItem('user'));
         if (user && user.token) {
             config.headers.Authorization = `Bearer ${user.token}`;

@@ -17,7 +17,7 @@ const AssignmentsView = () => {
     if (isLoading) return <div className="p-10 text-center text-gray-400">Loading assignments...</div>;
 
     const pending = assignments.filter(a => a.status === 'pending');
-    const submitted = assignments.filter(a => a.status === 'submitted');
+    const submitted = assignments.filter(a => a.status === 'submitted' || a.status === 'evaluated');
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -93,9 +93,9 @@ const AssignmentsView = () => {
                                             {assignment.subject}
                                         </span>
                                         <h4 className="font-bold text-gray-700">{assignment.title}</h4>
-                                        <p className="text-xs text-green-600 font-bold mt-1 tracking-tight">Status: Evaluation Pending</p>
+                                        <p className="text-xs text-green-600 font-bold mt-1 tracking-tight">Status: {assignment.status === 'evaluated' ? 'Completed' : 'Evaluation Pending'}</p>
                                     </div>
-                                    <CheckCircle size={20} className="text-green-500" />
+                                    <CheckCircle size={20} className={assignment.status === 'evaluated' ? "text-blue-500" : "text-green-500"} />
                                 </div>
                             ))
                         )}

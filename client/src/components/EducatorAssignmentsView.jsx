@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAssignments, createAssignment, reset, deleteAssignment } from '../slices/assignmentSlice';
-import { Plus, ClipboardList, Users, Clock, ChevronRight, X, Trash2 } from 'lucide-react';
+import { Plus, ClipboardList, Users, Clock, ChevronRight, X, Trash2, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
@@ -61,6 +61,18 @@ const EducatorAssignmentsView = () => {
             toast.error('Failed to load submissions');
         } finally {
             setLoadingSubmissions(false);
+        }
+    };
+
+    const handleEvaluate = async (submissionId) => {
+        try {
+            const { data } = await axios.put(`${API}/api/assignments/submissions/${submissionId}/evaluate`, {}, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            toast.success('Assignment Evaluated');
+            setSubmissions(submissions.map(s => s._id === submissionId ? { ...s, status: 'evaluated' } : s));
+        } catch (e) {
+            toast.error('Failed to evaluate submission');
         }
     };
 
@@ -271,9 +283,23 @@ const EducatorAssignmentsView = () => {
                                                     <p className="text-xs text-gray-400 font-medium">{s.student?.collegeId}</p>
                                                 </div>
                                             </div>
-                                            <span className="text-xs text-gray-400 font-bold whitespace-nowrap ml-2">
-                                                {new Date(s.submittedAt).toLocaleDateString()}
-                                            </span>
+                                            <div className="flex flex-col items-end gap-2">
+                                                <span className="text-xs text-gray-400 font-bold whitespace-nowrap ml-2">
+                                                    {new Date(s.submittedAt).toLocaleDateString()}
+                                                </span>
+                                                {s.status === 'evaluated' ? (
+                                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-md font-bold flex items-center gap-1">
+                                                        <CheckCircle size={14} /> Evaluated
+                                                    </span>
+                                                ) : (
+                                                    <button 
+                                                        onClick={() => handleEvaluate(s._id)} 
+                                                        className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors px-3 py-1.5 rounded-lg border border-blue-200 font-bold shadow-sm"
+                                                    >
+                                                        Evaluate
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                         <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 text-xs md:text-sm font-mono break-all leading-relaxed whitespace-pre-wrap text-gray-700">
                                             {s.content}

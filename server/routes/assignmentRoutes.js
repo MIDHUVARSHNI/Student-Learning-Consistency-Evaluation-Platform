@@ -5,7 +5,8 @@ const {
     getAssignments,
     submitAssignment,
     getAssignmentSubmissions,
-    deleteAssignment
+    deleteAssignment,
+    evaluateSubmission
 } = require('../controllers/assignmentController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
@@ -23,5 +24,8 @@ router.route('/:id/submit')
 
 router.route('/:id/submissions')
     .get(authorize('educator', 'admin'), getAssignmentSubmissions);
+
+router.route('/submissions/:id/evaluate')
+    .put(authorize('educator', 'admin'), evaluateSubmission);
 
 module.exports = router;

@@ -74,8 +74,9 @@ const EducatorProgressModal = ({ educator, onClose }) => {
                             <p className="text-gray-400 text-sm font-medium">{educator.email}</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-gray-400 hover:text-white transition-all bg-white/5 p-2.5 rounded-xl hover:bg-white/10 hover:rotate-90">
-                        <FaTimes size={20} />
+                    <button onClick={onClose} className="text-gray-400 flex items-center gap-2 hover:text-white transition-all bg-white/5 p-2.5 px-4 rounded-xl hover:bg-white/10 hover:-translate-x-1">
+                        <FaTimes size={18} />
+                        <span className="text-sm font-bold uppercase tracking-wider">Back</span>
                     </button>
                 </div>
 

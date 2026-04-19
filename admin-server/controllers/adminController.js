@@ -182,7 +182,9 @@ const getStudentAnalytics = asyncHandler(async (req, res, next) => {
         return next(new AppError('Invalid Student ID', 400));
     }
 
-    const activities = await Activity.find({ student: studentId });
+    const activities = await Activity.find({ student: studentId, status: 'completed' });
+    const Submission = require('../models/Submission');
+    const submissions = await Submission.find({ student: studentId, status: 'evaluated' });
     const studentUser = await User.findById(studentId);
 
     if (!studentUser) {
@@ -222,14 +224,17 @@ const getStudentAnalytics = asyncHandler(async (req, res, next) => {
             })
             .reduce((acc, curr) => acc + curr.duration, 0);
 
+        const hasSubmission = submissions.some(s => s.createdAt && s.createdAt.toISOString().split('T')[0] === dateString);
+
         last7Days.push({
             name: dayName,
-            minutes: dailyDuration
+            minutes: dailyDuration,
+            hasSubmission
         });
     }
 
     // Calculate Consistency Score
-    const activeDays = last7Days.filter(day => day.minutes > 0).length;
+    const activeDays = last7Days.filter(day => day.minutes > 0 || day.hasSubmission).length;
     const consistencyScore = Math.round((activeDays / 7) * 100);
 
     // Goal Progress

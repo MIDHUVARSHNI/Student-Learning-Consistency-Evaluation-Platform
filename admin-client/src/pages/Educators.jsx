@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import UserModal from '../components/UserModal';
 import EducatorProgressModal from '../components/EducatorProgressModal';
 import MessageModal from '../components/MessageModal';
 import { useAuth } from '../context/AuthContext';
-import { FaPlus, FaEdit, FaTrash, FaEnvelope, FaChartLine, FaSearch, FaThLarge, FaList } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaEnvelope, FaChartLine, FaSearch, FaThLarge, FaList, FaArrowLeft } from 'react-icons/fa';
 import { DEPARTMENTS, SUBJECT_MAP } from '../constants/data';
 
 // Static dept info matched to API educators
@@ -48,7 +49,13 @@ const Educators = () => {
     const [filterDept, setFilterDept] = useState('All');
     const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
     const unreadCountsRef = useRef({});
+    
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+    
     const { user } = useAuth();
+    const navigate = useNavigate();
 
     const fetchEducators = async () => {
         try {
@@ -122,8 +129,21 @@ const Educators = () => {
         (e.name?.toLowerCase().includes(search.toLowerCase()) || e.email?.toLowerCase().includes(search.toLowerCase()) || e.dept?.toLowerCase().includes(search.toLowerCase()))
     );
 
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, filterDept]);
+
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
+    const indexOfLastItem = Math.min(currentPage * itemsPerPage, filtered.length);
+    const indexOfFirstItem = (currentPage - 1) * itemsPerPage;
+    const currentItems = filtered.slice(indexOfFirstItem, currentPage * itemsPerPage);
+
     return (
         <div style={{ padding: '28px 32px', fontFamily: "'Inter','Segoe UI',sans-serif" }}>
+            {/* Back to Dashboard */}
+            <button onClick={() => navigate('/dashboard')} style={{ display: 'flex', alignItems: 'center', gap: 7, color: '#1565c0', fontWeight: 600, fontSize: 14, background: 'none', border: 'none', cursor: 'pointer', marginBottom: 20 }}>
+                <FaArrowLeft /> Back to Dashboard
+            </button>
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
                 <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a2e', borderLeft: '4px solid #1565c0', paddingLeft: 14 }}>
@@ -161,7 +181,7 @@ const Educators = () => {
             ) : viewMode === 'cards' ? (
                 /* ── CARD VIEW ── */
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 18 }}>
-                    {filtered.map((edu, i) => (
+                    {currentItems.map((edu, i) => (
                         <div key={edu._id} style={{ background: '#fff', borderRadius: 14, padding: '20px', border: '1px solid #e8eaf6', boxShadow: '0 2px 10px rgba(21,101,192,.07)', display: 'flex', flexDirection: 'column' }}>
                             {/* Top info */}
                             <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: 12 }}>
@@ -220,7 +240,7 @@ const Educators = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filtered.map((edu, i) => (
+                            {currentItems.map((edu, i) => (
                                 <tr key={edu._id} style={{ borderTop: '1px solid #f0f4ff', background: i % 2 === 0 ? '#fff' : '#fafbff' }}>
                                     <td style={{ padding: '12px 16px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -259,6 +279,34 @@ const Educators = () => {
                             ))}
                         </tbody>
                     </table>
+                </div>
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div style={{ marginTop: 24, padding: '16px 24px', borderRadius: 14, border: '1px solid #e8eaf6', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', boxShadow: '0 2px 10px rgba(21,101,192,.07)' }}>
+                    <span style={{ fontSize: 13, color: '#555' }}>
+                        Showing {indexOfFirstItem + 1} to {indexOfLastItem} of {filtered.length} entries
+                    </span>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                        <button 
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #d1d5db', background: currentPage === 1 ? '#f3f4f6' : '#fff', color: currentPage === 1 ? '#9ca3af' : '#1565c0', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 0.2s' }}
+                        >
+                            Previous
+                        </button>
+                        <div style={{ display: 'flex', alignItems: 'center', margin: '0 4px', fontSize: 13, fontWeight: 600, color: '#444' }}>
+                            Page {currentPage} of {totalPages}
+                        </div>
+                        <button 
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                            style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #d1d5db', background: currentPage === totalPages ? '#f3f4f6' : '#fff', color: currentPage === totalPages ? '#9ca3af' : '#1565c0', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 0.2s' }}
+                        >
+                            Next
+                        </button>
+                    </div>
                 </div>
             )}
 

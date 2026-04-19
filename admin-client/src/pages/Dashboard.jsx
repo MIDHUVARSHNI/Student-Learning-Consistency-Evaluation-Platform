@@ -78,6 +78,7 @@ const Dashboard = () => {
     const [educatorCount, setEducatorCount] = useState(0);
     const [showDeptModal, setShowDeptModal] = useState(false);
     const [showSubjectModal, setShowSubjectModal] = useState(false);
+    const [topStudents, setTopStudents] = useState([]);
 
     useEffect(() => {
         const fetchCounts = async () => {
@@ -89,6 +90,17 @@ const Dashboard = () => {
                 ]);
                 setStudentCount(studRes.data.length);
                 setEducatorCount(eduRes.data.length);
+
+                // Fetch top 10 consistency students
+                const students = studRes.data;
+                const analyticsPromises = students.map(student =>
+                    axios.get(`http://127.0.0.1:5001/api/admin/students/${student._id}/analytics`, config)
+                        .then(res => ({ ...student, consistency: res.data.consistencyScore || 0 }))
+                        .catch(() => ({ ...student, consistency: 0 }))
+                );
+                const studentsWithAnalytics = await Promise.all(analyticsPromises);
+                const sorted = studentsWithAnalytics.sort((a, b) => b.consistency - a.consistency).slice(0, 10);
+                setTopStudents(sorted);
             } catch (err) {
                 console.error('Failed to fetch counts', err);
             }
@@ -176,6 +188,44 @@ const Dashboard = () => {
                     </div>
                     <div className="absolute bottom-0 left-0 w-full h-1 bg-green-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
                 </Link>
+            </div>
+
+            {/* Top 10 Consistency Students */}
+            <div className="mt-8">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">Top 10 Consistency Students</h2>
+                <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roll No</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Consistency</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {topStudents.map((student, index) => (
+                                    <tr key={student._id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{index + 1}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.rollNo || 'N/A'}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.year || 'N/A'}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.department}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.consistency}%</td>
+                                    </tr>
+                                ))}
+                                {topStudents.length === 0 && (
+                                    <tr>
+                                        <td colSpan={6} className="px-6 py-4 text-center text-gray-500">No data available</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             {/* ── Departments Modal ── */}

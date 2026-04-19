@@ -101,6 +101,8 @@ const FacultyView = ({ token }) => {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [ratingStaff, setRatingStaff] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     useEffect(() => {
         axios.get(`${API}/api/educator/list`, { headers: { Authorization: `Bearer ${token}` } })
@@ -113,6 +115,14 @@ const FacultyView = ({ token }) => {
         f.name?.toLowerCase().includes(search.toLowerCase()) ||
         f.department?.toLowerCase().includes(search.toLowerCase())
     );
+
+    // Reset to page 1 on search
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search]);
+
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
+    const paginatedFaculty = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#888' }}>Loading faculty…</div>;
 
@@ -135,25 +145,49 @@ const FacultyView = ({ token }) => {
                     <p style={{ fontWeight: 600 }}>No faculty members found yet.</p>
                 </div>
             ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
-                    {filtered.map(f => (
-                        <div key={f._id} style={{ background: '#fff', borderRadius: 18, padding: '24px', border: '1px solid #e8eaf6', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', display: 'flex', gap: 16, alignItems: 'center', transition: 'transform 0.2s' }}>
-                            <div style={{ width: 54, height: 54, borderRadius: 16, background: 'linear-gradient(135deg,#1565c0,#42a5f5)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 22, flexShrink: 0 }}>
-                                {f.name?.charAt(0).toUpperCase() || 'F'}
+                <>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20, marginBottom: 20 }}>
+                        {paginatedFaculty.map(f => (
+                            <div key={f._id} style={{ background: '#fff', borderRadius: 18, padding: '24px', border: '1px solid #e8eaf6', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', display: 'flex', gap: 16, alignItems: 'center', transition: 'transform 0.2s' }}>
+                                <div style={{ width: 54, height: 54, borderRadius: 16, background: 'linear-gradient(135deg,#1565c0,#42a5f5)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 22, flexShrink: 0 }}>
+                                    {f.name?.charAt(0).toUpperCase() || 'F'}
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <p style={{ fontWeight: 800, fontSize: 15.5, color: '#1a1a2e', marginBottom: 4 }}>{f.name}</p>
+                                    {f.department && (
+                                        <span style={{ background: '#eff6ff', color: '#1d4ed8', fontSize: 11, fontWeight: 700, borderRadius: 6, padding: '4px 10px', display: 'inline-block' }}>{f.department}</span>
+                                    )}
+                                </div>
+                                <button onClick={() => setRatingStaff(f)} style={{ padding: '10px 14px', borderRadius: 10, border: 'none', background: '#f8fafc', color: '#1565c0', fontSize: 12, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.15s' }} onMouseEnter={e => { e.currentTarget.style.background = '#1565c0'; e.currentTarget.style.color = '#fff'; }} onMouseLeave={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#1565c0'; }}>
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>
+                                    Rate
+                                </button>
                             </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                                <p style={{ fontWeight: 800, fontSize: 15.5, color: '#1a1a2e', marginBottom: 4 }}>{f.name}</p>
-                                {f.department && (
-                                    <span style={{ background: '#eff6ff', color: '#1d4ed8', fontSize: 11, fontWeight: 700, borderRadius: 6, padding: '4px 10px', display: 'inline-block' }}>{f.department}</span>
-                                )}
-                            </div>
-                            <button onClick={() => setRatingStaff(f)} style={{ padding: '10px 14px', borderRadius: 10, border: 'none', background: '#f8fafc', color: '#1565c0', fontSize: 12, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.15s' }} onMouseEnter={e => { e.currentTarget.style.background = '#1565c0'; e.currentTarget.style.color = '#fff'; }} onMouseLeave={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#1565c0'; }}>
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>
-                                Rate
+                        ))}
+                    </div>
+
+                    {totalPages > 1 && (
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 12, marginTop: 24 }}>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e0e7ff', background: currentPage === 1 ? '#f8fafc' : '#fff', color: currentPage === 1 ? '#a0aec0' : '#1565c0', fontWeight: 600, cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+                            >
+                                Previous
+                            </button>
+                            <span style={{ fontSize: 14, fontWeight: 600, color: '#475569' }}>
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e0e7ff', background: currentPage === totalPages ? '#f8fafc' : '#fff', color: currentPage === totalPages ? '#a0aec0' : '#1565c0', fontWeight: 600, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
+                            >
+                                Next
                             </button>
                         </div>
-                    ))}
-                </div>
+                    )}
+                </>
             )}
             {ratingStaff && <RatingModal staff={ratingStaff} token={token} onClose={() => setRatingStaff(null)} />}
         </div>
@@ -206,6 +240,7 @@ const ExamsView = () => (
 ════════════════════════════════════════════════ */
 const DoubtClarificationView = ({ token, currentUser }) => {
     const [educators, setEducators] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
     const [selectedEdu, setSelectedEdu] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMsg, setNewMsg] = useState('');
@@ -256,6 +291,11 @@ const DoubtClarificationView = ({ token, currentUser }) => {
         } catch (e) { console.error(e); }
         finally { setSending(false); }
     };
+
+    const filteredEducators = educators.filter(edu =>
+        edu.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        edu.department?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     if (selectedEdu) return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '70vh' }}>
@@ -321,14 +361,22 @@ const DoubtClarificationView = ({ token, currentUser }) => {
         <div>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: '#1a1a2e', marginBottom: 6 }}>Doubt Clarification</h2>
             <p style={{ fontSize: 13, color: '#888', marginBottom: 20 }}>Select a faculty member to ask your doubts. They'll reply directly.</p>
-            {educators.length === 0 ? (
+            <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+                <input
+                    placeholder="Search by name or department…"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    style={{ flex: 1, maxWidth: 420, padding: '11px 16px', borderRadius: 10, border: '1.5px solid #e0e7ff', fontSize: 14, outline: 'none' }}
+                />
+            </div>
+            {filteredEducators.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '50px 20px', color: '#aaa' }}>
                     <MessageSquare size={48} style={{ opacity: 0.3, marginBottom: 12 }} />
-                    <p style={{ fontWeight: 600 }}>No faculty available yet.</p>
+                    <p style={{ fontWeight: 600 }}>{educators.length === 0 ? 'No faculty available yet.' : 'No faculty matched your search.'}</p>
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    {educators.map(edu => {
+                    {filteredEducators.map(edu => {
                         const unread = unreadMap[edu._id] || 0;
                         return (
                             <div key={edu._id} onClick={() => setSelectedEdu(edu)}

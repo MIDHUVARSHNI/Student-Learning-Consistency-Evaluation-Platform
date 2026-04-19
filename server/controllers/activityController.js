@@ -15,7 +15,7 @@ const getActivities = asyncHandler(async (req, res) => {
 // @route   POST /api/activities
 // @access  Private
 const createActivity = asyncHandler(async (req, res, next) => {
-    const { subject, topic, duration, status, notes } = req.body;
+    const { subject, topic, justification, duration, status, notes } = req.body;
 
     if (!subject || !duration) {
         return next(new AppError('Please add a subject and duration', 400));
@@ -25,6 +25,7 @@ const createActivity = asyncHandler(async (req, res, next) => {
         student: req.user.id,
         subject,
         topic,
+        justification,
         duration,
         status,
         notes,

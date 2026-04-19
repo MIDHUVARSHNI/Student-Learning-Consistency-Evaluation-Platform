@@ -35,6 +35,19 @@ const DEPARTMENTS = [
     { id: 'biotech', name: 'Biotechnology', code: 'BT', subjects: ['Cell Biology', 'Microbiology', 'Biochemistry', 'Molecular Biology', 'Genetic Engineering', 'Bioprocess Engineering', 'Immunology', 'Bioinformatics', 'Fermentation Technology', 'Protein Engineering'] },
 ];
 
+const YEARS = [
+    { id: '1st Year B.E.', label: '1st Year B.E.', short: '1st Year' },
+    { id: '2nd Year B.E.', label: '2nd Year B.E.', short: '2nd Year' },
+    { id: '3rd Year B.E.', label: '3rd Year B.E.', short: '3rd Year' },
+    { id: '4th Year B.E.', label: '4th Year B.E.', short: '4th Year' },
+    { id: '1st Year M.Tech', label: '1st Year M.Tech', short: '1st M.Tech' },
+    { id: '2nd Year M.Tech', label: '2nd Year M.Tech', short: '2nd M.Tech' },
+    { id: '1st Year MBA', label: '1st Year MBA', short: '1st MBA' },
+    { id: '2nd Year MBA', label: '2nd Year MBA', short: '2nd MBA' },
+    { id: '1st Year MCA', label: '1st Year MCA', short: '1st MCA' },
+    { id: '2nd Year MCA', label: '2nd Year MCA', short: '2nd MCA' }
+];
+
 /* ─── Sidebar navigation ─── */
 const NAV_ITEMS = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -126,10 +139,32 @@ const FacultyView = ({ token }) => {
 ═══════════════════════════════════════════════════════ */
 const StudentsView = ({ realStudents = [], onShowProgress }) => {
     const [search, setSearch] = useState('');
-    const filtered = realStudents.filter(s =>
-        s.name?.toLowerCase().includes(search.toLowerCase()) ||
-        s.email?.toLowerCase().includes(search.toLowerCase())
-    );
+    const [filterDept, setFilterDept] = useState('All');
+    const [filterYear, setFilterYear] = useState('All');
+    
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    const filtered = realStudents.filter(s => {
+        // Convert the student's values to lowercase/standard casing to ensure comparison works
+        // The dropdowns supply code for dept (e.g. 'CSE') and id for year (e.g. '1st Year B.E.')
+        const deptMatch = filterDept === 'All' || s.department === filterDept;
+        const yearMatch = filterYear === 'All' || s.year === filterYear;
+        const searchMatch = (s.name || '').toLowerCase().includes(search.toLowerCase()) || 
+                           (s.email || '').toLowerCase().includes(search.toLowerCase());
+                           
+        return deptMatch && yearMatch && searchMatch;
+    });
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, filterDept, filterYear]);
+
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
+    const indexOfLastItem = Math.min(currentPage * itemsPerPage, filtered.length);
+    const indexOfFirstItem = (currentPage - 1) * itemsPerPage;
+    const currentItems = filtered.slice(indexOfFirstItem, currentPage * itemsPerPage);
 
     if (realStudents.length === 0) return (
         <div style={{ textAlign: 'center', padding: '60px 20px', color: '#aaa' }}>
@@ -142,25 +177,44 @@ const StudentsView = ({ realStudents = [], onShowProgress }) => {
     return (
         <div>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: '#1a1a2e', marginBottom: 18 }}>
-                Students <span style={{ fontSize: 13, fontWeight: 500, color: '#888' }}>({realStudents.length} registered)</span>
+                Students <span style={{ fontSize: 13, fontWeight: 500, color: '#888' }}>({filtered.length} of {realStudents.length} registered)</span>
             </h2>
-            <input
-                placeholder="Search by name or email…"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                style={{ width: '100%', maxWidth: 400, padding: '9px 16px', borderRadius: 8, border: '1.5px solid #e0e7ff', fontSize: 14, outline: 'none', color: '#333', marginBottom: 20, display: 'block' }}
-            />
+            <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+                <input
+                    placeholder="Search by name or email…"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    style={{ flex: 1, minWidth: 200, padding: '9px 16px', borderRadius: 8, border: '1.5px solid #e0e7ff', fontSize: 14, outline: 'none', color: '#333' }}
+                />
+                <select value={filterYear} onChange={e => setFilterYear(e.target.value)}
+                    style={{ padding: '9px 16px', borderRadius: 8, border: '1.5px solid #e0e7ff', fontSize: 14, color: '#333', background: '#fff', cursor: 'pointer' }}>
+                    <option value="All">All Years</option>
+                    {YEARS.map(y => (
+                        <option key={y.id} value={y.id}>{y.label}</option>
+                    ))}
+                </select>
+                <select value={filterDept} onChange={e => setFilterDept(e.target.value)}
+                    style={{ padding: '9px 16px', borderRadius: 8, border: '1.5px solid #e0e7ff', fontSize: 14, color: '#333', background: '#fff', cursor: 'pointer' }}>
+                    <option value="All">All Departments</option>
+                    {DEPARTMENTS.map(d => (
+                        <option key={d.code} value={d.code}>{d.name}</option>
+                    ))}
+                </select>
+            </div>
+            
             <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e8eaf6', overflow: 'hidden', boxShadow: '0 2px 12px rgba(21,101,192,.07)' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                         <tr style={{ background: '#f0f4ff' }}>
-                            {['Student', 'Email', 'Consistency', 'Progress Status', 'Last Active', 'Activities', 'Actions'].map(h => (
+                            {['Student', 'Email', 'Dept/Year', 'Consistency', 'Last Active', 'Activities', 'Actions'].map(h => (
                                 <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontSize: 11, fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: '0.6px' }}>{h}</th>
                             ))}
                         </tr>
                     </thead>
                     <tbody>
-                        {filtered.map((s, i) => (
+                        {currentItems.length === 0 ? (
+                            <tr><td colSpan={7} style={{ padding: '40px 20px', textAlign: 'center', color: '#aaa' }}>No students match your filters.</td></tr>
+                        ) : currentItems.map((s, i) => (
                             <tr key={s._id} style={{ borderTop: '1px solid #f0f4ff', background: i % 2 === 0 ? '#fff' : '#fafbff' }}>
                                 <td style={{ padding: '12px 16px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -176,6 +230,10 @@ const StudentsView = ({ realStudents = [], onShowProgress }) => {
                                 </td>
                                 <td style={{ padding: '12px 16px', fontSize: 12, color: '#666' }}>{s.email}</td>
                                 <td style={{ padding: '12px 16px' }}>
+                                    {s.department && <span style={{ background: '#e8f0fe', color: '#1565c0', fontSize: 10, fontWeight: 700, borderRadius: 4, padding: '2px 6px', marginRight: 4 }}>{s.department}</span>}
+                                    {s.year && <span style={{ background: '#f3e5f5', color: '#6a1b9a', fontSize: 10, fontWeight: 700, borderRadius: 4, padding: '2px 6px' }}>{s.year}</span>}
+                                </td>
+                                <td style={{ padding: '12px 16px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                         <div style={{ width: 60, height: 5, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' }}>
                                             <div style={{ width: `${s.consistencyScore}%`, height: '100%', background: s.consistencyScore > 70 ? '#10b981' : s.consistencyScore > 40 ? '#f59e0b' : '#ef4444' }} />
@@ -183,30 +241,43 @@ const StudentsView = ({ realStudents = [], onShowProgress }) => {
                                         <span style={{ fontSize: 11, fontWeight: 700, color: '#555' }}>{s.consistencyScore}%</span>
                                     </div>
                                 </td>
-                                <td style={{ padding: '12px 16px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                        {s.checkedProgress >= s.totalActivities && s.totalActivities > 0 ? (
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#e8f5e9', color: '#2e7d32', padding: '4px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700 }}>
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                                Checked
-                                            </span>
-                                        ) : (
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#fff3e0', color: '#e65100', padding: '4px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700 }}>
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                                                Pending Review
-                                            </span>
-                                        )}
-                                    </div>
-                                </td>
                                 <td style={{ padding: '12px 16px', fontSize: 12, color: '#777' }}>{s.lastActive ? new Date(s.lastActive).toLocaleDateString() : '—'}</td>
                                 <td style={{ padding: '12px 16px', fontSize: 13, fontWeight: 600, color: '#555' }}>{s.totalActivities}</td>
                                 <td style={{ padding: '12px 16px' }}>
-                                    <button onClick={() => setSelectedStudent(s)} style={{ background: '#1565c0', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontSize: 11, fontWeight: 700 }}>Review</button>
+                                    <button onClick={() => onShowProgress(s)} style={{ background: '#1565c0', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontSize: 11, fontWeight: 700 }}>Review</button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
+                
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div style={{ padding: '16px 24px', borderTop: '1px solid #e8eaf6', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fafbff' }}>
+                        <span style={{ fontSize: 13, color: '#555' }}>
+                            Showing {indexOfFirstItem + 1} to {indexOfLastItem} of {filtered.length} entries
+                        </span>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #d1d5db', background: currentPage === 1 ? '#f3f4f6' : '#fff', color: currentPage === 1 ? '#9ca3af' : '#1565c0', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 0.2s' }}
+                            >
+                                Previous
+                            </button>
+                            <div style={{ display: 'flex', alignItems: 'center', margin: '0 4px', fontSize: 13, fontWeight: 600, color: '#444' }}>
+                                Page {currentPage} of {totalPages}
+                            </div>
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #d1d5db', background: currentPage === totalPages ? '#f3f4f6' : '#fff', color: currentPage === totalPages ? '#9ca3af' : '#1565c0', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 0.2s' }}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

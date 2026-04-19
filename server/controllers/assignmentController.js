@@ -52,7 +52,7 @@ const getAssignments = asyncHandler(async (req, res) => {
             const submission = submissions.find(s => s.assignment.toString() === assignment._id.toString());
             return {
                 ...assignment._doc,
-                status: submission ? 'submitted' : 'pending',
+                status: submission ? submission.status : 'pending',
                 submissionDetails: submission || null
             };
         });
@@ -137,10 +137,32 @@ const deleteAssignment = asyncHandler(async (req, res, next) => {
     res.status(200).json({ id: req.params.id });
 });
 
+// @desc    Evaluate submission
+// @route   PUT /api/assignments/:id/evaluate
+// @access  Private/Educator
+const evaluateSubmission = asyncHandler(async (req, res, next) => {
+    const submissionId = req.params.id;
+
+    const submission = await Submission.findById(submissionId).populate('assignment');
+    if (!submission) {
+        return next(new AppError('Submission not found', 404));
+    }
+
+    if (submission.assignment.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+        return next(new AppError('Not authorized to evaluate this submission', 403));
+    }
+
+    submission.status = 'evaluated';
+    await submission.save();
+
+    res.status(200).json(submission);
+});
+
 module.exports = {
     createAssignment,
     getAssignments,
     submitAssignment,
     getAssignmentSubmissions,
-    deleteAssignment
+    deleteAssignment,
+    evaluateSubmission
 };

@@ -16,7 +16,7 @@ import {
     Line
 } from 'recharts';
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+const COLORS = ['#0088FE', '#00C49F', '#7e18e5ff', '#ea2c17ff', '#8884d8'];
 
 const StudentProgressModal = ({ student, onClose }) => {
     const [analytics, setAnalytics] = useState(null);
@@ -60,6 +60,9 @@ const StudentProgressModal = ({ student, onClose }) => {
 
     if (!student) return null;
 
+    // Only calculate filtered data when analytics is available
+    const filteredSubjectData = analytics ? (analytics.subjectData || []).filter(entry => entry.value > 0) : [];
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] overflow-hidden flex flex-col">
@@ -74,8 +77,9 @@ const StudentProgressModal = ({ student, onClose }) => {
                             <p className="text-blue-200 text-sm">{student.email}</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors bg-white/10 p-2 rounded-full hover:bg-white/20">
-                        <FaTimes size={24} />
+                    <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors bg-white/10 p-2.5 px-4 flex items-center gap-2 rounded-xl hover:bg-white/20 hover:-translate-x-1">
+                        <FaTimes size={18} />
+                        <span className="text-sm font-bold uppercase tracking-wider">Back</span>
                     </button>
                 </div>
 
@@ -162,7 +166,7 @@ const StudentProgressModal = ({ student, onClose }) => {
                                             <ResponsiveContainer width="100%" height="100%">
                                                 <PieChart>
                                                     <Pie
-                                                        data={analytics.subjectData || []}
+                                                        data={filteredSubjectData}
                                                         cx="50%"
                                                         cy="50%"
                                                         innerRadius={60}
@@ -189,7 +193,7 @@ const StudentProgressModal = ({ student, onClose }) => {
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

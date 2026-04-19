@@ -17,6 +17,9 @@ const activitySchema = new mongoose.Schema({
     topic: {
         type: String,
     },
+    justification: {
+        type: String,
+    },
     duration: {
         type: Number, // duration in minutes
         required: true,

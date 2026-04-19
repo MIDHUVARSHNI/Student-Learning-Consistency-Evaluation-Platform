@@ -10,6 +10,8 @@ const getAnalytics = async (req, res) => {
         const activities = await Activity.find({ student: req.user.id });
         const completedActivities = activities.filter(a => a.status === 'completed');
         const checkedProgress = await Feedback.countDocuments({ student: req.user.id });
+        const Submission = require('../models/Submission');
+        const submissions = await Submission.find({ student: req.user.id, status: 'evaluated' });
 
         // Calculate Total Study Hours
         const totalMinutes = completedActivities.reduce((acc, curr) => acc + curr.duration, 0);
@@ -41,14 +43,17 @@ const getAnalytics = async (req, res) => {
                 .filter(a => a.createdAt.toISOString().split('T')[0] === dateString)
                 .reduce((acc, curr) => acc + curr.duration, 0);
 
+            const hasSubmission = submissions.some(s => s.createdAt && s.createdAt.toISOString().split('T')[0] === dateString);
+
             last7Days.push({
                 name: dayName,
-                minutes: dailyDuration
+                minutes: dailyDuration,
+                hasSubmission
             });
         }
 
         // Calculate Consistency Score (Active days in last 7 days)
-        const activeDays = last7Days.filter(day => day.minutes > 0).length;
+        const activeDays = last7Days.filter(day => day.minutes > 0 || day.hasSubmission).length;
         const consistencyScore = Math.round((activeDays / 7) * 100);
 
         // Heatmap Data (Last 365 days)

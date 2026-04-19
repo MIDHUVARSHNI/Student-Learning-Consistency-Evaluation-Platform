@@ -12,7 +12,7 @@ const getStudentStats = async (req, res) => {
         const students = await User.find({ role: 'student' }).select('-password');
 
         const studentStats = await Promise.all(students.map(async (student) => {
-            const activities = await Activity.find({ student: student._id });
+            const activities = await Activity.find({ student: student._id, status: 'completed' });
             const userActivities = await UserActivity.find({
                 user: student._id,
                 date: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
@@ -77,8 +77,10 @@ const getStudentAnalytics = async (req, res) => {
             return res.status(400).json({ message: 'Invalid Student ID provided' });
         }
 
-        const activities = await Activity.find({ student: studentId });
+        const activities = await Activity.find({ student: studentId, status: 'completed' });
         console.log(`Backend: Found ${activities.length} activities`);
+        const Submission = require('../models/Submission');
+        const submissions = await Submission.find({ student: studentId, status: 'evaluated' });
         const studentUser = await User.findById(studentId);
 
         if (!studentUser) {
@@ -117,14 +119,17 @@ const getStudentAnalytics = async (req, res) => {
                 .filter(a => a.createdAt && a.createdAt.toISOString().split('T')[0] === dateString)
                 .reduce((acc, curr) => acc + curr.duration, 0);
 
+            const hasSubmission = submissions.some(s => s.createdAt && s.createdAt.toISOString().split('T')[0] === dateString);
+
             last7Days.push({
                 name: dayName,
-                minutes: dailyDuration
+                minutes: dailyDuration,
+                hasSubmission
             });
         }
 
         // Calculate Consistency Score
-        const activeDays = last7Days.filter(day => day.minutes > 0).length;
+        const activeDays = last7Days.filter(day => day.minutes > 0 || day.hasSubmission).length;
         const consistencyScore = Math.round((activeDays / 7) * 100);
 
         // Heatmap Data

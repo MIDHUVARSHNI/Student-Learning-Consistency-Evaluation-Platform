@@ -46,6 +46,12 @@ const ActivityItem = ({ activity }) => {
                     <span className="text-[#6b7280] text-[12px] font-medium">Topic:</span>
                     <span className="text-[#111827] text-[12px] font-bold text-right truncate max-w-[120px]">{activity.topic}</span>
                 </div>
+                {activity.justification && (
+                    <div className="flex justify-between items-start border-[0.5px] border-b-gray-100 pb-1">
+                        <span className="text-[#6b7280] text-[12px] font-medium">Justification:</span>
+                        <span className="text-[#111827] text-[12px] font-bold text-right max-w-[140px]">{activity.justification}</span>
+                    </div>
+                )}
                 <div className="flex justify-between items-center border-[0.5px] border-b-gray-100 pb-1">
                     <span className="text-[#6b7280] text-[12px] font-medium">Date:</span>
                     <span className="text-[#111827] text-[12px] font-bold text-right">{new Date(activity.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>

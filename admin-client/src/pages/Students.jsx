@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import UserModal from '../components/UserModal';
@@ -72,9 +72,14 @@ const Students = () => {
     const [selectedYear, setSelectedYear] = useState(null);
     const [selectedDept, setSelectedDept] = useState(null);
     const [search, setSearch] = useState('');
+    
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     const { user } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
     const queryView = new URLSearchParams(location.search).get('view');
     const [isGlobalView, setIsGlobalView] = useState(false);
 
@@ -179,12 +184,24 @@ const Students = () => {
         (s.email || '').toLowerCase().includes(search.toLowerCase())
     );
 
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, selectedYear, selectedDept, isGlobalView]);
+
+    const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+    const indexOfLastStudent = Math.min(currentPage * itemsPerPage, filteredStudents.length);
+    const indexOfFirstStudent = (currentPage - 1) * itemsPerPage;
+    const currentStudents = filteredStudents.slice(indexOfFirstStudent, currentPage * itemsPerPage);
+
     /* ──────────────────────────────────────────────────────
        RENDER: Year selection
     ────────────────────────────────────────────────────── */
     if (!selectedYear && !isGlobalView) {
         return (
             <div style={{ padding: '28px 32px', fontFamily: "'Inter','Segoe UI',sans-serif" }}>
+                <button onClick={() => navigate('/dashboard')} style={{ display: 'flex', alignItems: 'center', gap: 7, color: '#1565c0', fontWeight: 600, fontSize: 14, background: 'none', border: 'none', cursor: 'pointer', marginBottom: 20 }}>
+                    <FaArrowLeft /> Back to Dashboard
+                </button>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
                     <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1a1a2e', borderLeft: '4px solid #1565c0', paddingLeft: 14 }}>
                         Students <span style={{ fontSize: 14, fontWeight: 500, color: '#888', marginLeft: 8 }}>— Select Academic Year</span>
@@ -325,7 +342,7 @@ const Students = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredStudents.map((s, i) => (
+                        {currentStudents.map((s, i) => (
                             <tr key={s._id} style={{ borderTop: '1px solid #f0f4ff', background: i % 2 === 0 ? '#fff' : '#fafbff', transition: 'background .15s' }}
                                 onMouseEnter={e => e.currentTarget.style.background = '#f5f7ff'}
                                 onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? '#fff' : '#fafbff'}>
@@ -398,6 +415,34 @@ const Students = () => {
                         )}
                     </tbody>
                 </table>
+                
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div style={{ padding: '16px 24px', borderTop: '1px solid #e8eaf6', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fafbff' }}>
+                        <span style={{ fontSize: 13, color: '#555' }}>
+                            Showing {indexOfFirstStudent + 1} to {indexOfLastStudent} of {filteredStudents.length} entries
+                        </span>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                disabled={currentPage === 1}
+                                style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #d1d5db', background: currentPage === 1 ? '#f3f4f6' : '#fff', color: currentPage === 1 ? '#9ca3af' : '#1565c0', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 0.2s' }}
+                            >
+                                Previous
+                            </button>
+                            <div style={{ display: 'flex', alignItems: 'center', margin: '0 4px', fontSize: 13, fontWeight: 600, color: '#444' }}>
+                                Page {currentPage} of {totalPages}
+                            </div>
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                style={{ padding: '6px 14px', borderRadius: 6, border: '1px solid #d1d5db', background: currentPage === totalPages ? '#f3f4f6' : '#fff', color: currentPage === totalPages ? '#9ca3af' : '#1565c0', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 0.2s' }}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Modals */}
