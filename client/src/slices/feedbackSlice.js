@@ -20,7 +20,7 @@ export const sendFeedback = createAsyncThunk(
                     Authorization: `Bearer ${token}`,
                 },
             };
-            const response = await axios.post('http://127.0.0.1:5000/api/feedback', feedbackData, config);
+            const response = await axios.post('https://student-learning-consistency-evaluation-bij4.onrender.com/api/feedback', feedbackData, config);
             return response.data;
         } catch (error) {
             const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
@@ -40,7 +40,7 @@ export const getFeedback = createAsyncThunk(
                     Authorization: `Bearer ${token}`,
                 },
             };
-            const response = await axios.get('http://127.0.0.1:5000/api/feedback', config);
+            const response = await axios.get('https://student-learning-consistency-evaluation-bij4.onrender.com/api/feedback', config);
             return response.data;
         } catch (error) {
             const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();

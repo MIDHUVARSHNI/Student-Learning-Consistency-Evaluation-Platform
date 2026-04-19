@@ -59,7 +59,7 @@ const Educators = () => {
 
     const fetchEducators = async () => {
         try {
-            const { data } = await axios.get('http://127.0.0.1:5001/api/admin/educators', {
+            const { data } = await axios.get('https://student-learning-consistency-evaluation-b26h.onrender.com/api/admin/educators', {
                 headers: { Authorization: `Bearer ${user.token}` },
             });
             setEducators(data.map((e, i) => enrichEducator(e, i)));
@@ -73,7 +73,7 @@ const Educators = () => {
 
     const fetchUnreadCounts = async () => {
         try {
-            const { data } = await axios.get('http://127.0.0.1:5001/api/admin/messages/unread-by-sender', {
+            const { data } = await axios.get('https://student-learning-consistency-evaluation-b26h.onrender.com/api/admin/messages/unread-by-sender', {
                 headers: { Authorization: `Bearer ${user.token}` },
             });
             const map = {};
@@ -102,7 +102,7 @@ const Educators = () => {
     const handleDelete = async (id) => {
         if (!window.confirm('Delete this educator?')) return;
         try {
-            await axios.delete(`http://127.0.0.1:5001/api/admin/users/${id}`, { headers: { Authorization: `Bearer ${user.token}` } });
+            await axios.delete(`https://student-learning-consistency-evaluation-b26h.onrender.com/api/admin/users/${id}`, { headers: { Authorization: `Bearer ${user.token}` } });
             toast.success('Educator deleted');
             fetchEducators();
         } catch { toast.error('Failed to delete'); }
@@ -112,10 +112,10 @@ const Educators = () => {
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
             if (currentUser) {
-                await axios.put(`http://127.0.0.1:5001/api/admin/users/${currentUser._id}`, formData, config);
+                await axios.put(`https://student-learning-consistency-evaluation-b26h.onrender.com/api/admin/users/${currentUser._id}`, formData, config);
                 toast.success('Educator updated');
             } else {
-                await axios.post('http://127.0.0.1:5001/api/admin/users', formData, config);
+                await axios.post('https://student-learning-consistency-evaluation-b26h.onrender.com/api/admin/users', formData, config);
                 toast.success('Educator created');
             }
             setIsModalOpen(false);
