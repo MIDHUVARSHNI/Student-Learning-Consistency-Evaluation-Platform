@@ -1,7 +1,7 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const API_ADMIN_URL = 'https://student-learning-consistency-evaluation-b26h.onrender.com/api';
+const API_ADMIN_URL = 'http://127.0.0.1:5001/api';
 
 const axiosInstance = axios.create({
     baseURL: API_ADMIN_URL,

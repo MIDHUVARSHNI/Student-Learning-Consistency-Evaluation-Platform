@@ -85,8 +85,8 @@ const Dashboard = () => {
             try {
                 const config = { headers: { Authorization: `Bearer ${user.token}` } };
                 const [studRes, eduRes] = await Promise.all([
-                    axios.get('https://student-learning-consistency-evaluation-b26h.onrender.com/api/admin/students', config),
-                    axios.get('https://student-learning-consistency-evaluation-b26h.onrender.com/api/admin/educators', config),
+                    axios.get('http://127.0.0.1:5001/api/admin/students', config),
+                    axios.get('http://127.0.0.1:5001/api/admin/educators', config),
                 ]);
                 setStudentCount(studRes.data.length);
                 setEducatorCount(eduRes.data.length);
@@ -94,7 +94,7 @@ const Dashboard = () => {
                 // Fetch top 10 consistency students
                 const students = studRes.data;
                 const analyticsPromises = students.map(student =>
-                    axios.get(`https://student-learning-consistency-evaluation-b26h.onrender.com/api/admin/students/${student._id}/analytics`, config)
+                    axios.get(`http://127.0.0.1:5001/api/admin/students/${student._id}/analytics`, config)
                         .then(res => ({ ...student, consistency: res.data.consistencyScore || 0 }))
                         .catch(() => ({ ...student, consistency: 0 }))
                 );

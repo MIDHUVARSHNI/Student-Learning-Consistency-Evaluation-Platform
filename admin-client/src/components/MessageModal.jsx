@@ -18,7 +18,7 @@ const MessageModal = ({ recipient, onClose }) => {
 
     const fetchMessages = async () => {
         try {
-            const { data } = await axios.get(`https://student-learning-consistency-evaluation-b26h.onrender.com/api/admin/messages/${recipient._id}`, {
+            const { data } = await axios.get(`http://127.0.0.1:5001/api/admin/messages/${recipient._id}`, {
                 headers: { Authorization: `Bearer ${user.token}` },
             });
             const sortedMessages = data.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
@@ -35,7 +35,7 @@ const MessageModal = ({ recipient, onClose }) => {
             if (unreadIds.length > 0) {
                 // Non-blocking parallel update
                 Promise.all(unreadIds.map(id =>
-                    axios.put(`https://student-learning-consistency-evaluation-b26h.onrender.com/api/admin/messages/${id}/read`, {}, {
+                    axios.put(`http://127.0.0.1:5001/api/admin/messages/${id}/read`, {}, {
                         headers: { Authorization: `Bearer ${user.token}` }
                     })
                 )).catch(err => console.error('Error marking messages read:', err));
@@ -65,7 +65,7 @@ const MessageModal = ({ recipient, onClose }) => {
         setSending(true);
         try {
             await axios.post(
-                'https://student-learning-consistency-evaluation-b26h.onrender.com/api/admin/messages',
+                'http://127.0.0.1:5001/api/admin/messages',
                 {
                     recipientId: recipient._id,
                     content: message,

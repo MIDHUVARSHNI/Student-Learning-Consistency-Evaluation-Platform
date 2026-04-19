@@ -24,8 +24,8 @@ const MessageListModal = ({ onClose, targetUser }) => {
                 },
             };
             const url = targetUser
-                ? `https://student-learning-consistency-evaluation-bij4.onrender.com/api/messages?otherUserId=${targetUser.id}`
-                : 'https://student-learning-consistency-evaluation-bij4.onrender.com/api/messages?senderRole=admin';
+                ? `http://127.0.0.1:5000/api/messages?otherUserId=${targetUser.id}`
+                : 'http://127.0.0.1:5000/api/messages?senderRole=admin';
 
             const { data } = await axios.get(url, config);
             const sortedMessages = data.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
@@ -42,7 +42,7 @@ const MessageListModal = ({ onClose, targetUser }) => {
 
             // If it's an admin chat and no messages exist, fetch admins to enable staff-initiated chat
             if (!targetUser && data.length === 0) {
-                const adminResponse = await axios.get('https://student-learning-consistency-evaluation-bij4.onrender.com/api/messages/admins', config);
+                const adminResponse = await axios.get('http://127.0.0.1:5000/api/messages/admins', config);
                 setAdmins(adminResponse.data);
             }
         } catch (error) {
@@ -68,7 +68,7 @@ const MessageListModal = ({ onClose, targetUser }) => {
                     Authorization: `Bearer ${user.token}`,
                 },
             };
-            await axios.put(`https://student-learning-consistency-evaluation-bij4.onrender.com/api/messages/${messageId}/read`, {}, config);
+            await axios.put(`http://127.0.0.1:5000/api/messages/${messageId}/read`, {}, config);
         } catch (error) {
             console.error('Error marking message as read:', error);
         }
@@ -107,7 +107,7 @@ const MessageListModal = ({ onClose, targetUser }) => {
                 return;
             }
 
-            await axios.post('https://student-learning-consistency-evaluation-bij4.onrender.com/api/messages', {
+            await axios.post('http://127.0.0.1:5000/api/messages', {
                 recipientId,
                 content: replyContent
             }, config);

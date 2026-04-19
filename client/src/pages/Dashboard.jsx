@@ -21,7 +21,7 @@ import {
     ClipboardList
 } from 'lucide-react';
 
-const API = 'https://student-learning-consistency-evaluation-bij4.onrender.com';
+const API = 'http://127.0.0.1:5000';
 
 /* ─── Nav items ─── */
 const NAV_ITEMS = [

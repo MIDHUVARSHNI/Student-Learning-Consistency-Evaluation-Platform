@@ -24,7 +24,7 @@ export const getStudentStats = createAsyncThunk(
                     Authorization: `Bearer ${token}`,
                 },
             };
-            const response = await axios.get('https://student-learning-consistency-evaluation-bij4.onrender.com/api/educator/students', config);
+            const response = await axios.get('http://127.0.0.1:5000/api/educator/students', config);
             return response.data;
         } catch (error) {
             const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();
@@ -45,7 +45,7 @@ export const getStudentAnalytics = createAsyncThunk(
                 },
             };
             console.log(`Slice: Calling API for student ${studentId}`);
-            const response = await axios.get(`https://student-learning-consistency-evaluation-bij4.onrender.com/api/educator/student/${studentId}/analytics`, config);
+            const response = await axios.get(`http://127.0.0.1:5000/api/educator/student/${studentId}/analytics`, config);
             console.log('Slice: API Response received', response.data);
             return response.data;
         } catch (error) {
@@ -66,7 +66,7 @@ export const getEducators = createAsyncThunk(
                     Authorization: `Bearer ${token}`,
                 },
             };
-            const response = await axios.get('https://student-learning-consistency-evaluation-bij4.onrender.com/api/educator/list', config);
+            const response = await axios.get('http://127.0.0.1:5000/api/educator/list', config);
             return response.data;
         } catch (error) {
             const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString();

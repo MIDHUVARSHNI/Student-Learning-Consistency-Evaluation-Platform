@@ -21,7 +21,7 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell
 } from 'recharts';
 
-const API = 'https://student-learning-consistency-evaluation-bij4.onrender.com';
+const API = 'http://127.0.0.1:5000';
 
 /* ─── Engineering College Departments (static reference) ─── */
 const DEPARTMENTS = [

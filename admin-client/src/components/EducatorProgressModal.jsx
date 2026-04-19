@@ -25,7 +25,7 @@ const EducatorProgressModal = ({ educator, onClose }) => {
     useEffect(() => {
         const fetchAnalytics = async () => {
             try {
-                const response = await fetch(`https://student-learning-consistency-evaluation-b26h.onrender.com/api/admin/educators/${educator._id}/analytics`, {
+                const response = await fetch(`http://127.0.0.1:5001/api/admin/educators/${educator._id}/analytics`, {
                     headers: {
                         Authorization: `Bearer ${adminUser.token}`,
                     },

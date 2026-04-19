@@ -5,7 +5,7 @@ import { Plus, ClipboardList, Users, Clock, ChevronRight, X, Trash2, CheckCircle
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
-const API = 'https://student-learning-consistency-evaluation-bij4.onrender.com';
+const API = 'http://127.0.0.1:5000';
 
 const EducatorAssignmentsView = () => {
     const dispatch = useDispatch();
